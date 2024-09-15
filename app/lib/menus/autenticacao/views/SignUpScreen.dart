@@ -169,21 +169,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                               color: containsUpperCase
                                   ? Color.fromRGBO(252, 185, 19, 1)
-                                  : Theme.of(context).colorScheme.onBackground),
+                                  : Colors.white),
                         ),
                         Text(
                           "⚈  1 lowercase",
                           style: TextStyle(
                               color: containsLowerCase
                                   ? Color.fromRGBO(252, 185, 19, 1)
-                                  : Theme.of(context).colorScheme.onBackground),
+                                  : Colors.white),
                         ),
                         Text(
                           "⚈  1 number",
                           style: TextStyle(
                               color: containsNumber
                                   ? Color.fromRGBO(252, 185, 19, 1)
-                                  : Theme.of(context).colorScheme.onBackground),
+                                  : Colors.white),
                         ),
                       ],
                     ),
@@ -195,14 +195,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                               color: containsSpecialChar
                                   ? Color.fromRGBO(252, 185, 19, 1)
-                                  : Theme.of(context).colorScheme.onBackground),
+                                  : Colors.white),
                         ),
                         Text(
                           "⚈  8 minimum character",
                           style: TextStyle(
                               color: contains8Length
                                   ? Color.fromRGBO(252, 185, 19, 1)
-                                  : Theme.of(context).colorScheme.onBackground),
+                                  : Colors.white),
                         ),
                       ],
                     ),
