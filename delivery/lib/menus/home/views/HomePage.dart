@@ -1,6 +1,8 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, avoid_print, file_names
 
 import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
+import 'package:delivery/menus/home/views/BuyNowPage.dart';
+import 'package:delivery/menus/home/views/DetailsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Ensure you have this import for Bloc usage
 import 'package:flutter/cupertino.dart'; // Import for CupertinoIcons
@@ -24,16 +26,14 @@ class HomePage extends StatelessWidget {
                   onPressed: () {},
                   icon: const Icon(CupertinoIcons.cart),
                 ),
-                // Second column: image centered
                 Spacer(), // Pushes the image to the center
                 Center(
                   child: Image.asset(
                     'images/Logo.png',
-                    height: 70, // Adjust the height as needed
+                    height: 70,
                   ),
                 ),
                 Spacer(), // Pushes the button to the right
-                // Third column: IconButton
                 IconButton(
                   onPressed: () {
                     context.read<SignInBloc>().add(SignOutRequired());
@@ -46,13 +46,17 @@ class HomePage extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        itemCount: 1, // Adjust the item count as needed
+        itemCount:
+            1, // Adjust the item count as needed -  Replace with firebase data
         itemBuilder: (BuildContext context, int index) {
           return Padding(
             padding: const EdgeInsets.all(8.0), // Set padding as needed
             child: InkWell(
               onTap: () {
-                // Define the action to be taken when the container is tapped
+                Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                        builder: (BuildContext context) => DetailsPage()));
                 print('Container tapped');
               },
               child: AnimatedContainer(
@@ -142,7 +146,11 @@ class HomePage extends StatelessWidget {
                           ),
                           IconButton(
                             onPressed: () {
-                              // Should go to the Detail Page
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>
+                                          Buynow()));
                               print('Add button pressed');
                             },
                             icon: const Icon(CupertinoIcons.add_circled_solid),

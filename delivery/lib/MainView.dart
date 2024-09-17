@@ -14,6 +14,7 @@ class MainView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Projeto",
+      debugShowCheckedModeBanner: false,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state.status == AuthenticationStatus.authenticated) {
