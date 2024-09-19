@@ -120,8 +120,6 @@ class DetailsPage extends StatelessWidget {
                   icon: FontAwesomeIcons.carrot,
                 ),
                 SizedBox(width: 14),
-                MyWidget(name: "Bread", icon: FontAwesomeIcons.breadSlice),
-                SizedBox(width: 14),
                 MyWidget(name: "Meat", icon: FontAwesomeIcons.drumstickBite),
                 SizedBox(width: 14),
                 MyWidget(name: "Cheese", icon: FontAwesomeIcons.cheese),
