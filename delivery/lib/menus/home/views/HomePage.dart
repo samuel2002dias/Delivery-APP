@@ -6,6 +6,7 @@ import 'package:delivery/menus/home/views/DetailsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Ensure you have this import for Bloc usage
 import 'package:flutter/cupertino.dart'; // Import for CupertinoIcons
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import for Firebase Firestore
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -45,126 +46,152 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        itemCount:
-            1, // Adjust the item count as needed -  Replace with firebase data
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0), // Set padding as needed
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                        builder: (BuildContext context) => DetailsPage()));
-                print('Container tapped');
-              },
-              child: AnimatedContainer(
-                duration:
-                    Duration(seconds: 1), // Set the duration of the animation
-                curve: Curves.easeInOut, // Set the curve of the animation
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      BorderRadius.circular(25.0), // Set border radius
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade400
-                          .withOpacity(0.5), // Shadow color with opacity
-                      spreadRadius: 3, // Spread radius
-                      blurRadius: 5, // Blur radius
-                      offset: Offset(2, 2), // Offset in x and y direction
-                    ),
-                  ],
-                ),
-                height: 150.0, // Specify the height of the container
-                width:
-                    double.infinity, // Make the container take the full width
-                child: Stack(
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(
-                              8.0), // Padding around the image
-                          child: ClipOval(
-                            child: Image.asset(
-                              'images/cheese.png',
-                              height: 130.0, // Adjust the height as needed
-                              width: 130.0, // Adjust the width as needed
-                              fit: BoxFit
-                                  .cover, // Ensure the image covers the entire area
-                            ),
-                          ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('product').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Something went wrong!'));
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No products available'));
+          }
+
+          final products = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: products.length,
+            itemBuilder: (BuildContext context, int index) {
+              final product = products[index];
+              final productData = product.data() as Map<String, dynamic>;
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0), // Set padding as needed
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) =>
+                            DetailsPage(productId: product.id),
+                      ),
+                    );
+                    print('Container tapped');
+                  },
+                  child: AnimatedContainer(
+                    duration: Duration(
+                        seconds: 1), // Set the duration of the animation
+                    curve: Curves.easeInOut, // Set the curve of the animation
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.circular(25.0), // Set border radius
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.shade400
+                              .withOpacity(0.5), // Shadow color with opacity
+                          spreadRadius: 3, // Spread radius
+                          blurRadius: 5, // Blur radius
+                          offset: Offset(2, 2), // Offset in x and y direction
                         ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(
-                                8.0), // Padding around the text
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'CheeseBurguer', //  Replace with firebase data
-                                  style: TextStyle(
-                                    fontSize:
-                                        20.0, // Larger font size for the name
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      ],
+                    ),
+                    height: 150.0, // Specify the height of the container
+                    width: double
+                        .infinity, // Make the container take the full width
+                    child: Stack(
+                      children: [
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(
+                                  8.0), // Padding around the image
+                              child: ClipOval(
+                                child: Image.network(
+                                  productData['image'] ?? 'images/cheese.png',
+                                  height: 130.0, // Adjust the height as needed
+                                  width: 130.0, // Adjust the width as needed
+                                  fit: BoxFit
+                                      .cover, // Ensure the image covers the entire area
                                 ),
-                                SizedBox(
-                                    height:
-                                        4.0), // Space between name and ingredients
-                                Text(
-                                  'Description', //  Replace with firebase data
-                                  style: TextStyle(
-                                    fontSize:
-                                        16.0, // Smaller font size for the ingredients
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(
+                                    8.0), // Padding around the text
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      productData['name'] ?? 'Product Name',
+                                      style: TextStyle(
+                                        fontSize:
+                                            20.0, // Larger font size for the name
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                        height:
+                                            4.0), // Space between name and ingredients
+                                    Text(
+                                      productData['description'] ??
+                                          'Description',
+                                      style: TextStyle(
+                                        fontSize:
+                                            16.0, // Smaller font size for the ingredients
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          bottom: 8.0,
+                          right: 8.0,
+                          child: Row(
+                            children: [
+                              Text(
+                                '\$${productData['price'] ?? '0.00'}',
+                                style: TextStyle(
+                                  fontSize: 18.0, // Font size for the price
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromRGBO(
+                                      252, 185, 19, 1), // Color for the price
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>
+                                          BuyNowPage(productId: product.id),
+                                    ),
+                                  );
+                                  print('Add button pressed');
+                                },
+                                icon: const Icon(
+                                    CupertinoIcons.add_circled_solid),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    Positioned(
-                      bottom: 8.0,
-                      right: 8.0,
-                      child: Row(
-                        children: [
-                          Text(
-                            '\$9.99', // Replace with firebase data
-                            style: TextStyle(
-                              fontSize: 18.0, // Font size for the price
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromRGBO(
-                                  252, 185, 19, 1), // Color for the price
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          Buynow()));
-                              print('Add button pressed');
-                            },
-                            icon: const Icon(CupertinoIcons.add_circled_solid),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           );
         },
-      ), // Placeholder for the body content
+      ),
     );
   }
 }
