@@ -1,18 +1,64 @@
-// ignore_for_file: file_names
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delivery/IngredientsWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class BuyNowPage extends StatelessWidget {
+class BuyNowPage extends StatefulWidget {
   final String productId;
 
   const BuyNowPage({super.key, required this.productId});
 
+  @override
+  _BuyNowPageState createState() => _BuyNowPageState();
+}
+
+class _BuyNowPageState extends State<BuyNowPage> {
+  late GoogleMapController mapController;
+  LatLng _selectedLocation =
+      const LatLng(38.71667, -9.13333); // Default to Lisbon, Portugal
+  late Map<String, dynamic> productData;
+  String _deliveryStatus = 'In preparation'; // Default status
+
   Future<DocumentSnapshot> getProductDetails() async {
     return await FirebaseFirestore.instance
         .collection('product')
-        .doc(productId)
+        .doc(widget.productId)
         .get();
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _onTap(LatLng location) {
+    setState(() {
+      _selectedLocation = location;
+    });
+  }
+
+  Future<void> _sendLocationToFirebase() async {
+    try {
+      await FirebaseFirestore.instance.collection('requests').add({
+        'productId': widget.productId,
+        'productName': productData['name'],
+        'productPrice': productData['price'],
+        'latitude': _selectedLocation.latitude,
+        'longitude': _selectedLocation.longitude,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': _deliveryStatus, // Add the delivery status
+      });
+      final snackBar = SnackBar(
+        content: Text(
+            'Location and product details sent to Firebase: $_selectedLocation'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      final snackBar = SnackBar(
+        content: Text('Failed to send location and product details: $e'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -29,7 +75,6 @@ class BuyNowPage extends StatelessWidget {
                 height: 70,
               ),
             ),
-            // Pushes the button to the right
           ],
         ),
       ),
@@ -46,133 +91,201 @@ class BuyNowPage extends StatelessWidget {
             return const Center(child: Text('Product not found'));
           }
 
-          final productData = snapshot.data!.data() as Map<String, dynamic>;
+          productData = snapshot.data!.data() as Map<String, dynamic>;
 
-          return Padding(
-            padding: const EdgeInsets.all(8.0), // Set padding as needed
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /* Text(
-                  'You are buying:',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),*/
-                const SizedBox(height: 10), // Space between text and InkWell
-                Center(
-                  child: SizedBox(
-                    width: 300, // Set the width of the InkWell
-                    height: 150, // Set the height of the InkWell
-                    child: InkWell(
-                      onTap: () {},
-                      child: AnimatedContainer(
-                        duration: const Duration(
-                            seconds: 0), // Set the duration of the animation
-                        curve:
-                            Curves.easeInOut, // Set the curve of the animation
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(25.0), // Set border radius
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade400.withOpacity(
-                                  0.5), // Shadow color with opacity
-                              spreadRadius: 3, // Spread radius
-                              blurRadius: 5, // Blur radius
-                              offset: const Offset(
-                                  2, 2), // Offset in x and y direction
-                            ),
-                          ],
-                        ),
-                        height: 150.0, // Specify the height of the container
-                        width: double
-                            .infinity, // Make the container take the full width
-                        child: Stack(
-                          children: [
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(
-                                      8.0), // Padding around the image
-                                  child: ClipOval(
-                                    child: Image.network(
-                                      productData['image'] ??
-                                          'images/cheese.png',
-                                      height:
-                                          130.0, // Adjust the height as needed
-                                      width:
-                                          130.0, // Adjust the width as needed
-                                      fit: BoxFit
-                                          .cover, // Ensure the image covers the entire area
-                                    ),
+          List<dynamic> ingredients = productData['Ingredients'] ?? [];
+
+          return Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Center(
+                      child: SizedBox(
+                        width: 300,
+                        height: 150,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 10.0), // Add padding here
+                          child: InkWell(
+                            onTap: () {},
+                            child: AnimatedContainer(
+                              duration: const Duration(seconds: 0),
+                              curve: Curves.easeInOut,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(25.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        Colors.grey.shade400.withOpacity(0.5),
+                                    spreadRadius: 3,
+                                    blurRadius: 5,
+                                    offset: const Offset(2, 2),
                                   ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(
-                                        8.0), // Padding around the text
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                ],
+                              ),
+                              height: 150.0,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ClipOval(
+                                          child: Image.network(
+                                            productData['image'],
+                                            height: 130.0,
+                                            width: 130.0,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                productData['name'] ??
+                                                    'Product Name',
+                                                style: const TextStyle(
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4.0),
+                                              Text(
+                                                productData['description'] ??
+                                                    'Description',
+                                                style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors.grey[700],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Positioned(
+                                    bottom: 8.0,
+                                    right: 8.0,
+                                    child: Row(
                                       children: [
                                         Text(
-                                          productData['name'] ?? 'Product Name',
+                                          '\$${productData['price'] ?? '0.00'}',
                                           style: const TextStyle(
-                                            fontSize:
-                                                20.0, // Larger font size for the name
+                                            fontSize: 18.0,
                                             fontWeight: FontWeight.bold,
+                                            color:
+                                                Color.fromRGBO(252, 185, 19, 1),
                                           ),
                                         ),
-                                        const SizedBox(
-                                            height:
-                                                4.0), // Space between name and ingredients
-                                        Text(
-                                          productData['description'] ??
-                                              'Description',
-                                          style: TextStyle(
-                                            fontSize:
-                                                16.0, // Smaller font size for the ingredients
-                                            color: Colors.grey[700],
-                                          ),
-                                        ),
+                                        const SizedBox(width: 8),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              bottom: 8.0,
-                              right: 8.0,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '\$${productData['price'] ?? '0.00'}',
-                                    style: const TextStyle(
-                                      fontSize: 18.0, // Font size for the price
-                                      fontWeight: FontWeight.bold,
-                                      color: Color.fromRGBO(252, 185, 19,
-                                          1), // Color for the price
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                      width: 8), // Space between price and icon
                                 ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: ingredients.map((ingredient) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: MyWidget(
+                            name: ingredient ?? 'Ingredient',
+                            icon: FontAwesomeIcons
+                                .carrot, // Adjust the icon as needed
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Where should the product be delivered?',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Container(
+                        width: 300, // Set the desired width for the map
+                        height: 200, // Set the desired height for the map
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey, // Border color
+                            width: 2.0, // Border width
+                          ),
+                          borderRadius:
+                              BorderRadius.circular(10.0), // Border radius
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                              10.0), // Clip the map to the border radius
+                          child: GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _selectedLocation,
+                              zoom: 10.0,
+                            ),
+                            onTap: _onTap,
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId('selected-location'),
+                                position: _selectedLocation,
+                              ),
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: _sendLocationToFirebase,
+                    style: TextButton.styleFrom(
+                      elevation: 3.0,
+                      backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      "Add to Cart",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
