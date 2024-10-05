@@ -105,7 +105,7 @@ class DetailsPage extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 14.0),
                                 child: Text(
                                   productData['name'] ?? 'Product Name',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
