@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:delivery/IngredientsWidget.dart';
-import 'package:delivery/MapWidget.dart';
+import 'package:delivery/menus/home/views/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Firebase_BuyNow.dart'; // Import the new file
+import 'CreditCardPayment.dart'; // Import the CreditCardPayment page
 
 class BuyNowPage extends StatefulWidget {
   final String productId;
@@ -19,12 +19,11 @@ class _BuyNowPageState extends State<BuyNowPage> {
   LatLng _selectedLocation =
       const LatLng(38.71667, -9.13333); // Default to Lisbon, Portugal
   Map<String, dynamic>? productData;
-  String _deliveryStatus = 'In preparation'; // Default status
   final TextEditingController _numberController = TextEditingController();
-  final FocusNode _numberFocusNode = FocusNode();
   final TextEditingController _observationsController = TextEditingController();
-  final FocusNode _observationsFocusNode = FocusNode();
+  final TextEditingController _addressController = TextEditingController();
   bool isLoading = true;
+  bool _isPaymentOnDelivery = false; // Add this state variable
 
   @override
   void initState() {
@@ -34,8 +33,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
 
   @override
   void dispose() {
-    _numberFocusNode.dispose();
-    _observationsFocusNode.dispose();
+    _numberController.dispose();
+    _observationsController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -63,47 +63,32 @@ class _BuyNowPageState extends State<BuyNowPage> {
     }
   }
 
-  Future<void> _sendLocationToFirebase() async {
-    if (productData == null) {
-      final snackBar = SnackBar(
-        content: Text('Product data is not loaded yet.'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      return;
-    }
-
-    try {
-      await FirebaseFirestore.instance.collection('requests').add({
-        'productId': widget.productId,
-        'productName': productData!['name'],
-        'productPrice': productData!['price'],
-        'latitude': _selectedLocation.latitude,
-        'longitude': _selectedLocation.longitude,
-        'timestamp': FieldValue.serverTimestamp(),
-        'status': _deliveryStatus,
-        'nif':
-            _numberController.text.isNotEmpty ? _numberController.text : null,
-        'observations': _observationsController.text.isNotEmpty
-            ? _observationsController.text
-            : null,
-      });
-      final snackBar = SnackBar(
-        content: Text(
-            'Location and product details sent to Firebase: $_selectedLocation'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } catch (e) {
-      final snackBar = SnackBar(
-        content: Text('Failed to send location and product details: $e'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-  }
-
-  void _onLocationSelected(LatLng location) {
-    setState(() {
-      _selectedLocation = location;
-    });
+  void _showDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Notification'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (message == 'Order requested') {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => HomePage(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -249,21 +234,6 @@ class _BuyNowPageState extends State<BuyNowPage> {
                             ),
                             const Divider(),
                             const SizedBox(height: 5),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: (productData!['Ingredients'] ?? [])
-                                  .map<Widget>((ingredient) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6.0),
-                                  child: MyWidget(
-                                    name: ingredient ?? 'Ingredient',
-                                    icon: FontAwesomeIcons.carrot,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 5),
                             const Text(
                               'Where should the product be delivered?',
                               style: TextStyle(
@@ -272,9 +242,65 @@ class _BuyNowPageState extends State<BuyNowPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            MapWidget(
-                              initialLocation: _selectedLocation,
-                              onLocationSelected: _onLocationSelected,
+                            TextField(
+                              controller: _addressController,
+                              keyboardType: TextInputType.text,
+                              maxLength: 200,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 15.0, horizontal: 20.0),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0)),
+                                  borderSide: BorderSide(
+                                    color: Color.fromRGBO(252, 185, 19, 1),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0)),
+                                  borderSide: BorderSide(
+                                    color: Color.fromRGBO(252, 185, 19, 1),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0)),
+                                  borderSide: BorderSide(
+                                    color: Color.fromRGBO(252, 185, 19, 1),
+                                  ),
+                                ),
+                                labelText: 'Address',
+                                labelStyle: TextStyle(
+                                  color: Color.fromRGBO(252, 185, 19, 1),
+                                ),
+                                counterText:
+                                    '', // This line removes the digit counter
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton(
+                                onPressed: () {
+                                  onPinPointLocation(
+                                    context: context,
+                                    onLocationSelected: (LatLng location) {
+                                      setState(() {
+                                        _selectedLocation = location;
+                                      });
+                                    },
+                                    addressController: _addressController,
+                                  );
+                                },
+                                child: const Text(
+                                  'Rather pin point your location? Click here',
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(252, 185, 19, 1),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 10),
                             const Divider(),
@@ -289,7 +315,6 @@ class _BuyNowPageState extends State<BuyNowPage> {
                             const SizedBox(height: 5),
                             TextField(
                               controller: _numberController,
-                              focusNode: _numberFocusNode,
                               keyboardType: TextInputType.number,
                               maxLength: 9,
                               decoration: const InputDecoration(
@@ -326,7 +351,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                             const SizedBox(height: 10),
                             ElevatedButton(
                               onPressed: () {
-                                // Handle payment method action
+                                setState(() {
+                                  _isPaymentOnDelivery = !_isPaymentOnDelivery;
+                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
@@ -338,21 +365,15 @@ class _BuyNowPageState extends State<BuyNowPage> {
                                 minimumSize: const Size.fromHeight(
                                     50), // Match the height of the TextField
                               ),
-                              child: const Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Payment Method',
-                                    style: TextStyle(
-                                      color: Color.fromRGBO(252, 185, 19, 1),
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    color: Color.fromRGBO(252, 185, 19, 1),
-                                  ),
-                                ],
+                              child: Center(
+                                child: Text(
+  _isPaymentOnDelivery
+      ? 'Payment on Delivery chosen'
+      : 'Payment on Delivery?',
+  style: TextStyle(
+    color: _isPaymentOnDelivery ? Colors.green : Color.fromRGBO(252, 185, 19, 1),
+  ),
+),
                               ),
                             ),
                             const Divider(),
@@ -367,7 +388,6 @@ class _BuyNowPageState extends State<BuyNowPage> {
                             const SizedBox(height: 10),
                             TextField(
                               controller: _observationsController,
-                              focusNode: _observationsFocusNode,
                               keyboardType: TextInputType.text,
                               maxLength: 200,
                               decoration: const InputDecoration(
@@ -406,23 +426,48 @@ class _BuyNowPageState extends State<BuyNowPage> {
                               alignment: Alignment.bottomCenter,
                               child: Padding(
                                 padding: const EdgeInsets.all(16.0),
-                                child: TextButton(
-                                  onPressed: _sendLocationToFirebase,
-                                  style: TextButton.styleFrom(
-                                    elevation: 3.0,
-                                    backgroundColor:
-                                        const Color.fromRGBO(252, 185, 19, 1),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      if (_isPaymentOnDelivery) {
+                                        sendLocationToFirebase(
+                                          context: context,
+                                          productId: widget.productId,
+                                          productData: productData,
+                                          numberController: _numberController,
+                                          observationsController:
+                                              _observationsController,
+                                          addressController: _addressController,
+                                          selectedLocation: _selectedLocation,
+                                          showDialog: _showDialog,
+                                          paymentMethod: 'Payment on Delivery',
+                                        );
+                                      } else {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                CreditCardPayment(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    style: TextButton.styleFrom(
+                                      elevation: 3.0,
+                                      backgroundColor:
+                                          const Color.fromRGBO(252, 185, 19, 1),
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    "Add to Cart",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
+                                    child: const Text(
+                                      "Pay Now",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
