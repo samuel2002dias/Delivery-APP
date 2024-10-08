@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:delivery/product/src/enitities/IngredientsEntity.dart';
 import 'package:delivery/product/src/models/models.dart';
 

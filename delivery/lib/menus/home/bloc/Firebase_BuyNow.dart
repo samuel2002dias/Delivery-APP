@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ Future<void> sendLocationToFirebase({
 
   try {
     User? user = FirebaseAuth.instance.currentUser; // Get the current user
-    String? email = user?.email; // Get the user's email
+    String? userId = user?.uid; // Get the user's unique identifier
 
     Map<String, dynamic> requestData = {
       'productId': productId,
@@ -35,7 +37,7 @@ Future<void> sendLocationToFirebase({
           ? observationsController.text
           : null,
       'payment': paymentMethod, // Set the payment method
-      'User email': email, // Add the user's email
+      'userId': userId, // Add the user's unique identifier
     };
 
     if (addressController.text.isNotEmpty) {

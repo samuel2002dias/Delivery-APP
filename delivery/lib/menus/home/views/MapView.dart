@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, library_private_types_in_public_api, use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -8,7 +10,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   LatLng _selectedLocation =
-      LatLng(38.71667, -9.13333); // Default to Lisbon, Portugal
+      const LatLng(38.71667, -9.13333); // Default to Lisbon, Portugal
 
   void _onMapCreated(GoogleMapController controller) {
     // Additional map setup if needed
@@ -55,7 +57,7 @@ class _MapViewState extends State<MapView> {
             const SizedBox(height: 10),
             Center(
               child: Container(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.grey,
@@ -74,7 +76,7 @@ class _MapViewState extends State<MapView> {
                   onTap: _onTap,
                   markers: {
                     Marker(
-                      markerId: MarkerId('selected-location'),
+                      markerId: const MarkerId('selected-location'),
                       position: _selectedLocation,
                     ),
                   },

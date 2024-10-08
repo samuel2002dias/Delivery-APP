@@ -1,40 +1,209 @@
-// ignore_for_file: prefer_const_constructors, avoid_print, file_names
+// ignore_for_file: avoid_types_as_parameter_names, use_build_context_synchronously, file_names
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
-import 'package:delivery/menus/home/views/BuyNowPage.dart';
+
+import 'package:delivery/menus/home/views/CartPage.dart';
 import 'package:delivery/menus/home/views/DetailsPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Ensure you have this import for Bloc usage
-import 'package:flutter/cupertino.dart'; // Import for CupertinoIcons
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import for Firebase Firestore
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  Future<void> addToCart(
+      String productId, Map<String, dynamic> productData, int quantity) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final cartRef =
+          FirebaseFirestore.instance.collection('cart').doc(user.uid);
+      final cartSnapshot = await cartRef.get();
+
+      if (cartSnapshot.exists) {
+        // If the cart already exists, update it
+        final cartData = cartSnapshot.data() as Map<String, dynamic>;
+        final products = List<Map<String, dynamic>>.from(cartData['products']);
+        final productIndex =
+            products.indexWhere((product) => product['id'] == productId);
+
+        if (productIndex >= 0) {
+          // If the product already exists in the cart, increment its quantity
+          products[productIndex]['quantity'] += quantity;
+        } else {
+          // If the product does not exist in the cart, add it with the specified quantity
+          products.add({
+            'id': productId,
+            'data': productData,
+            'quantity': quantity,
+          });
+        }
+
+        await cartRef.update({'products': products});
+      } else {
+        // If the cart does not exist, create it with the product
+        await cartRef.set({
+          'products': [
+            {
+              'id': productId,
+              'data': productData,
+              'quantity': quantity,
+            }
+          ]
+        });
+      }
+    } else {
+      print('User not signed in');
+    }
+  }
+
+  void showAddToCartDialog(BuildContext context, String productId,
+      Map<String, dynamic> productData) {
+    int quantity = 1;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Add to Cart'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Enter quantity:'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
+                          if (quantity > 1) {
+                            setState(() {
+                              quantity--;
+                            });
+                          }
+                        },
+                      ),
+                      Text('$quantity'),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          setState(() {
+                            quantity++;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await addToCart(productId, productData, quantity);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Add to Cart'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0), // Adjust the height as needed
+        preferredSize:
+            const Size.fromHeight(100.0), // Adjust the height as needed
         child: Padding(
           padding: const EdgeInsets.all(20.0), // Add padding to all sides
           child: AppBar(
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                // First column: IconButton
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(CupertinoIcons.cart),
-                ),
-                Spacer(), // Pushes the image to the center
+                // First column: IconButton with cart count
+                if (user != null)
+                  StreamBuilder<DocumentSnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('cart')
+                        .doc(user.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      int itemCount = 0;
+                      if (snapshot.hasData && snapshot.data!.exists) {
+                        final cartData =
+                            snapshot.data!.data() as Map<String, dynamic>;
+                        final products = cartData['products'] as List<dynamic>;
+                        itemCount = products.fold(
+                            0,
+                            (sum, product) =>
+                                sum + (product['quantity'] as int));
+                      }
+                      return Stack(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      const CartPage(
+                                    userId: '',
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(CupertinoIcons.cart),
+                          ),
+                          if (itemCount > 0)
+                            Positioned(
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                child: Text(
+                                  '$itemCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                const Spacer(), // Pushes the image to the center
                 Center(
                   child: Image.asset(
                     'images/Logo.png',
                     height: 70,
                   ),
                 ),
-                Spacer(), // Pushes the button to the right
+                const Spacer(), // Pushes the button to the right
                 IconButton(
                   onPressed: () {
                     context.read<SignInBloc>().add(SignOutRequired());
@@ -50,13 +219,13 @@ class HomePage extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('product').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong!'));
+            return const Center(child: Text('Something went wrong!'));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No products available'));
+            return const Center(child: Text('No products available'));
           }
 
           final products = snapshot.data!.docs;
@@ -81,7 +250,7 @@ class HomePage extends StatelessWidget {
                     print('Container tapped');
                   },
                   child: AnimatedContainer(
-                    duration: Duration(
+                    duration: const Duration(
                         seconds: 1), // Set the duration of the animation
                     curve: Curves.easeInOut, // Set the curve of the animation
                     decoration: BoxDecoration(
@@ -94,7 +263,8 @@ class HomePage extends StatelessWidget {
                               .withOpacity(0.5), // Shadow color with opacity
                           spreadRadius: 3, // Spread radius
                           blurRadius: 5, // Blur radius
-                          offset: Offset(2, 2), // Offset in x and y direction
+                          offset:
+                              const Offset(2, 2), // Offset in x and y direction
                         ),
                       ],
                     ),
@@ -128,13 +298,13 @@ class HomePage extends StatelessWidget {
                                   children: [
                                     Text(
                                       productData['name'] ?? 'Product Name',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize:
                                             20.0, // Larger font size for the name
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                         height:
                                             4.0), // Space between name and ingredients
                                     Text(
@@ -159,7 +329,7 @@ class HomePage extends StatelessWidget {
                             children: [
                               Text(
                                 '\$${productData['price'] ?? '0.00'}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18.0, // Font size for the price
                                   fontWeight: FontWeight.bold,
                                   color: Color.fromRGBO(
@@ -168,14 +338,8 @@ class HomePage extends StatelessWidget {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          BuyNowPage(productId: product.id),
-                                    ),
-                                  );
-                                  print('Add button pressed');
+                                  showAddToCartDialog(
+                                      context, product.id, productData);
                                 },
                                 icon: const Icon(
                                     CupertinoIcons.add_circled_solid),

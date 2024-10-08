@@ -1,8 +1,10 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/IngredientsWidget.dart';
 import 'package:delivery/menus/home/views/BuyNowPage.dart';
+import 'package:delivery/menus/home/views/HomePage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -16,6 +18,60 @@ class DetailsPage extends StatelessWidget {
         .collection('product')
         .doc(productId)
         .get();
+  }
+
+  Future<void> addToCart(BuildContext context, String productId,
+      Map<String, dynamic> productData) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final cartRef =
+          FirebaseFirestore.instance.collection('cart').doc(user.uid);
+      final cartSnapshot = await cartRef.get();
+
+      if (cartSnapshot.exists) {
+        // If the cart already exists, update it
+        final cartData = cartSnapshot.data() as Map<String, dynamic>;
+        final products = cartData['products'] as List<dynamic>;
+        final productIndex =
+            products.indexWhere((product) => product['id'] == productId);
+
+        if (productIndex >= 0) {
+          // If the product already exists in the cart, increment its quantity
+          products[productIndex]['quantity'] += 1;
+        } else {
+          // If the product does not exist in the cart, add it with quantity 1
+          products.add({
+            'id': productId,
+            'data': productData,
+            'quantity': 1,
+          });
+        }
+
+        await cartRef.update({'products': products});
+      } else {
+        // If the cart does not exist, create it with the product
+        await cartRef.set({
+          'products': [
+            {
+              'id': productId,
+              'data': productData,
+              'quantity': 1,
+            }
+          ]
+        });
+      }
+
+      // Navigate back to the home page
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => const HomePage(),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    } else {
+      print('User not signed in');
+    }
   }
 
   @override
@@ -40,13 +96,13 @@ class DetailsPage extends StatelessWidget {
         future: getProductDetails(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong!'));
+            return const Center(child: Text('Something went wrong!'));
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return Center(child: Text('Product not found'));
+            return const Center(child: Text('Product not found'));
           }
 
           final productData = snapshot.data!.data() as Map<String, dynamic>;
@@ -120,7 +176,7 @@ class DetailsPage extends StatelessWidget {
                                   alignment: Alignment.centerRight,
                                   child: Text(
                                     "\$${productData['price'] ?? '0.00'}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Color.fromRGBO(252, 185, 19, 1),
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -170,8 +226,10 @@ class DetailsPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (BuildContext context) =>
-                              BuyNowPage(productId: productId),
+                          builder: (BuildContext context) => BuyNowPage(
+                            productId: productId,
+                            products: [],
+                          ),
                         ),
                       );
                     },
@@ -198,7 +256,10 @@ class DetailsPage extends StatelessWidget {
                   width: MediaQuery.of(context).size.width,
                   height: 50,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await addToCart(context, productId, productData);
+                      print('Add to Cart button pressed');
+                    },
                     style: TextButton.styleFrom(
                       elevation: 3.0,
                       backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
