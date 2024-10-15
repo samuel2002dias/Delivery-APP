@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/IngredientsWidget.dart';
-import 'package:delivery/menus/home/views/BuyNowPage.dart';
+import 'package:delivery/menus/home/views/FeedbackPage.dart';
 import 'package:delivery/menus/home/views/HomePage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +72,17 @@ class DetailsPage extends StatelessWidget {
     } else {
       print('User not signed in');
     }
+  }
+
+  Future<List<Map<String, dynamic>>> getFeedbacks() async {
+    final feedbacksSnapshot = await FirebaseFirestore.instance
+        .collection('feedbacks')
+        .where('productId', isEqualTo: productId)
+        .get();
+
+    return feedbacksSnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
   }
 
   @override
@@ -192,32 +203,90 @@ class DetailsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     MyWidget(
                       name: ingredients['ingredientName1'] ?? 'Ingredient 1',
                       icon: FontAwesomeIcons.carrot,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     MyWidget(
                       name: ingredients['ingredientName2'] ?? 'Ingredient 2',
                       icon: FontAwesomeIcons.carrot,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 8),
                     MyWidget(
                       name: ingredients['ingredientName3'] ?? 'Ingredient 3',
                       icon: FontAwesomeIcons.drumstickBite,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 8),
                     MyWidget(
                       name: ingredients['ingredientName4'] ?? 'Ingredient 4',
                       icon: FontAwesomeIcons.cheese,
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 8),
                   ],
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: getFeedbacks(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading feedbacks'));
+                      }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No feedbacks found'));
+                      }
+
+                      final feedbacks = snapshot.data!;
+
+                      return ListView.builder(
+                        itemCount: feedbacks.length,
+                        itemBuilder: (context, index) {
+                          final feedback = feedbacks[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            elevation: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    feedback['feedback'] ?? 'No feedback',
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8.0),
+                                  Text(
+                                    'User: ${feedback['userId']}',
+                                    style: const TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 0),
                 SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 50,
@@ -226,9 +295,8 @@ class DetailsPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (BuildContext context) => BuyNowPage(
+                          builder: (BuildContext context) => FeedbackPage(
                             productId: productId,
-                            products: [],
                           ),
                         ),
                       );
@@ -242,7 +310,7 @@ class DetailsPage extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      "Buy Now",
+                      "Feedback",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
