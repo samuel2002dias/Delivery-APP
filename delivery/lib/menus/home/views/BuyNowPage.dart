@@ -1,11 +1,13 @@
 // ignore_for_file: file_names
 
+import 'package:delivery/ProductCard.dart';
 import 'package:delivery/menus/home/views/CreditCardPayment.dart';
 import 'package:delivery/menus/home/bloc/Firebase_BuyNow.dart';
 import 'package:delivery/menus/home/views/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 class BuyNowPage extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -14,7 +16,8 @@ class BuyNowPage extends StatefulWidget {
   const BuyNowPage({
     Key? key,
     required this.products,
-    this.singleProduct, required String productId,
+    this.singleProduct,
+    required String productId,
   }) : super(key: key);
 
   @override
@@ -103,110 +106,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   final productDetails =
                       product['data'] as Map<String, dynamic>;
                   final quantity = product['quantity'] ?? 1;
-                  return Center(
-                    child: SizedBox(
-                      width: 300,
-                      height: 150,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: InkWell(
-                          onTap: () {},
-                          child: AnimatedContainer(
-                            duration: const Duration(seconds: 0),
-                            curve: Curves.easeInOut,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.shade400.withOpacity(0.5),
-                                  spreadRadius: 3,
-                                  blurRadius: 5,
-                                  offset: const Offset(2, 2),
-                                ),
-                              ],
-                            ),
-                            height: 150.0,
-                            width: double.infinity,
-                            child: Stack(
-                              children: [
-                                Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: ClipOval(
-                                        child: Image.network(
-                                          productDetails['image'],
-                                          height: 130.0,
-                                          width: 130.0,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              productDetails['name'] ??
-                                                  'Product Name',
-                                              style: const TextStyle(
-                                                fontSize: 20.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4.0),
-                                            Text(
-                                              productDetails['description'] ??
-                                                  'Description',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4.0),
-                                            Text(
-                                              'Quantity: $quantity',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                color: Colors.grey[700],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Positioned(
-                                  bottom: 8.0,
-                                  right: 8.0,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        '\$${productDetails['price'] ?? '0.00'}',
-                                        style: const TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              Color.fromRGBO(252, 185, 19, 1),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  return ProductCard(
+                    productDetails: productDetails,
+                    quantity: quantity, onTap: () {  },
                   );
                 }).toList(),
                 const Divider(),

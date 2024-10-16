@@ -80,9 +80,23 @@ class DetailsPage extends StatelessWidget {
         .where('productId', isEqualTo: productId)
         .get();
 
-    return feedbacksSnapshot.docs
+    final feedbacks = feedbacksSnapshot.docs
         .map((doc) => doc.data() as Map<String, dynamic>)
         .toList();
+
+    for (var feedback in feedbacks) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(feedback['userId'])
+          .get();
+      if (userDoc.exists) {
+        feedback['name'] = userDoc.data()?['name'] ?? 'Unknown User';
+      } else {
+        feedback['name'] = 'Unknown User';
+      }
+    }
+
+    return feedbacks;
   }
 
   @override
@@ -245,6 +259,7 @@ class DetailsPage extends StatelessWidget {
                       }
 
                       final feedbacks = snapshot.data!;
+                      final users = snapshot.data!;
 
                       return ListView.builder(
                         itemCount: feedbacks.length,
@@ -271,7 +286,7 @@ class DetailsPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8.0),
                                   Text(
-                                    'User: ${feedback['userId']}',
+                                    'From ${feedback['name']}',
                                     style: const TextStyle(
                                       fontSize: 14.0,
                                       color: Colors.grey,
