@@ -1,6 +1,8 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, file_names
-
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/credit_card_brand.dart';
+import 'package:flutter_credit_card/credit_card_form.dart';
+import 'package:flutter_credit_card/credit_card_model.dart';
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 
 class CreditCardPayment extends StatefulWidget {
   @override
@@ -8,92 +10,110 @@ class CreditCardPayment extends StatefulWidget {
 }
 
 class _CreditCardPaymentState extends State<CreditCardPayment> {
-  final TextEditingController _cardNumberController = TextEditingController();
-  final TextEditingController _expiryDateController = TextEditingController();
-  final TextEditingController _cvvController = TextEditingController();
-  final TextEditingController _cardHolderNameController =
-      TextEditingController();
+  String cardNumber = '';
+  String expiryDate = '';
+  String cardHolderName = '';
+  String cvvCode = '';
+  bool isCvvFocused = false;
 
-  @override
-  void dispose() {
-    _cardNumberController.dispose();
-    _expiryDateController.dispose();
-    _cvvController.dispose();
-    _cardHolderNameController.dispose();
-    super.dispose();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  void _onCreditCardModelChange(CreditCardModel creditCardModel) {
+    setState(() {
+      cardNumber = creditCardModel.cardNumber;
+      expiryDate = creditCardModel.expiryDate;
+      cardHolderName = creditCardModel.cardHolderName;
+      cvvCode = creditCardModel.cvvCode;
+      isCvvFocused = creditCardModel.isCvvFocused;
+    });
   }
 
-  void _submitPayment() {
-    // Handle payment submission logic here
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Payment Submitted'),
-          content: const Text('Your payment has been successfully submitted.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Go back to the previous screen
-              },
-            ),
-          ],
-        );
-      },
-    );
+  void _simulatePayment() {
+    if (formKey.currentState!.validate()) {
+      // Simulate a payment process
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Payment Successful'),
+            content: Text('Your payment has been processed successfully.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Credit Card Payment'),
+        title: Text('Credit Card Payment'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
         child: Column(
-          children: [
-            TextField(
-              controller: _cardNumberController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Card Number',
-                border: OutlineInputBorder(),
-              ),
+          children: <Widget>[
+            CreditCardWidget(
+              cardNumber: cardNumber,
+              expiryDate: expiryDate,
+              cardHolderName: cardHolderName,
+              cvvCode: cvvCode,
+              showBackView: isCvvFocused,
+              obscureCardNumber: true,
+              obscureCardCvv: true,
+              onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {
+                // Handle credit card brand change if needed
+              },
             ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _expiryDateController,
-              keyboardType: TextInputType.datetime,
-              decoration: const InputDecoration(
-                labelText: 'Expiry Date (MM/YY)',
-                border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    CreditCardForm(
+                      formKey: formKey,
+                      cardNumber: cardNumber,
+                      expiryDate: expiryDate,
+                      cardHolderName: cardHolderName,
+                      cvvCode: cvvCode,
+                      onCreditCardModelChange: _onCreditCardModelChange,
+                      themeColor: Colors.blue,
+                      obscureCvv: true,
+                      obscureNumber: true,
+                      cardNumberDecoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Number',
+                        hintText: 'XXXX XXXX XXXX XXXX',
+                      ),
+                      expiryDateDecoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Expired Date',
+                        hintText: 'XX/XX',
+                      ),
+                      cvvCodeDecoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'CVV',
+                        hintText: 'XXX',
+                      ),
+                      cardHolderDecoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Card Holder',
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _simulatePayment,
+                      child: Text('Pay Now'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _cvvController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'CVV',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: _cardHolderNameController,
-              keyboardType: TextInputType.text,
-              decoration: const InputDecoration(
-                labelText: 'Cardholder Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 32.0),
-            ElevatedButton(
-              onPressed: _submitPayment,
-              child: const Text('Submit Payment'),
             ),
           ],
         ),
