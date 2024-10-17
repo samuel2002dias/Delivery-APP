@@ -8,16 +8,17 @@ import 'package:delivery/menus/home/views/MapView.dart';
 
 Future<void> sendLocationToFirebase({
   required BuildContext context,
-  required String productId,
-  required Map<String, dynamic>? productData,
+  required List<String> productIds,
+  required List<Map<String, dynamic>> productDataList,
   required TextEditingController numberController,
   required TextEditingController observationsController,
   required TextEditingController addressController,
   required LatLng selectedLocation,
   required Function(String) showDialog,
-  required String paymentMethod, // Add this parameter
+  required String paymentMethod,
+  required double price,
 }) async {
-  if (productData == null) {
+  if (productDataList.isEmpty) {
     showDialog('Product data is not loaded yet.');
     return;
   }
@@ -26,10 +27,17 @@ Future<void> sendLocationToFirebase({
     User? user = FirebaseAuth.instance.currentUser; // Get the current user
     String? userId = user?.uid; // Get the user's unique identifier
 
+    List<Map<String, dynamic>> products = [];
+    for (int i = 0; i < productIds.length; i++) {
+      products.add({
+        'productId': productIds[i],
+        'productName': productDataList[i]['name'],
+      });
+    }
+
     Map<String, dynamic> requestData = {
-      'productId': productId,
-      'productName': productData['name'],
-      'productPrice': productData['price'],
+      'products': products,
+      'price': price,
       'timestamp': FieldValue.serverTimestamp(),
       'status': 'In Progress',
       'nif': numberController.text.isNotEmpty ? numberController.text : null,

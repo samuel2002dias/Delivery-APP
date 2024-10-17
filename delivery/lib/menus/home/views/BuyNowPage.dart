@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-
 class BuyNowPage extends StatefulWidget {
   final List<Map<String, dynamic>> products;
   final Map<String, dynamic>? singleProduct;
@@ -68,11 +67,26 @@ class _BuyNowPageState extends State<BuyNowPage> {
     );
   }
 
+  double _calculateTotalPrice() {
+    final productsToShow = widget.singleProduct != null
+        ? [widget.singleProduct!]
+        : widget.products;
+    return productsToShow.fold(
+      0.0,
+      (sum, product) {
+        final quantity = product['quantity'] ?? 1;
+        final price = product['data']['price'] as double;
+        return sum + (price * quantity);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final productsToShow = widget.singleProduct != null
         ? [widget.singleProduct!]
         : widget.products;
+    final totalPrice = _calculateTotalPrice();
 
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +122,8 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   final quantity = product['quantity'] ?? 1;
                   return ProductCard(
                     productDetails: productDetails,
-                    quantity: quantity, onTap: () {  },
+                    quantity: quantity,
+                    onTap: () {},
                   );
                 }).toList(),
                 const Divider(),
@@ -299,24 +314,43 @@ class _BuyNowPageState extends State<BuyNowPage> {
                       width: MediaQuery.of(context).size.width,
                       child: TextButton(
                         onPressed: () {
+                          List<String> productIds = productsToShow
+                              .map((product) => product['id'] as String)
+                              .toList();
+                          List<Map<String, dynamic>> productDataList =
+                              productsToShow
+                                  .map((product) =>
+                                      product['data'] as Map<String, dynamic>)
+                                  .toList();
+
                           if (_isPaymentOnDelivery) {
-                            for (var product in productsToShow) {
-                              sendLocationToFirebase(
-                                context: context,
-                                productId: product['id'],
-                                productData: product['data'],
-                                numberController: _numberController,
-                                observationsController: _observationsController,
-                                addressController: _addressController,
-                                selectedLocation: _selectedLocation,
-                                showDialog: _showDialog,
-                                paymentMethod: 'Payment on Delivery',
-                              );
-                            }
+                            sendLocationToFirebase(
+                              context: context,
+                              productIds: productIds,
+                              productDataList: productDataList,
+                              numberController: _numberController,
+                              observationsController: _observationsController,
+                              addressController: _addressController,
+                              selectedLocation: _selectedLocation,
+                              showDialog: _showDialog,
+                              paymentMethod: 'Payment on Delivery',
+                              price: totalPrice,
+                            );
                           } else {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => CreditCardPayment(),
+                                builder: (context) => CreditCardPayment(
+                                  totalAmount: totalPrice,
+                                  productIds: productIds,
+                                  productDataList: productDataList,
+                                  numberController: _numberController,
+                                  observationsController:
+                                      _observationsController,
+                                  addressController: _addressController,
+                                  selectedLocation: _selectedLocation,
+                                  showDialog: _showDialog,
+                                  totalPrice: totalPrice,
+                                ),
                               ),
                             );
                           }
@@ -330,9 +364,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          "Pay Now",
-                          style: TextStyle(
+                        child: Text(
+                          "Pay $totalPrice",
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
