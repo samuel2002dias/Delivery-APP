@@ -10,6 +10,7 @@ Future<void> sendLocationToFirebase({
   required BuildContext context,
   required List<String> productIds,
   required List<Map<String, dynamic>> productDataList,
+  required List<int> productQuantities,
   required TextEditingController numberController,
   required TextEditingController observationsController,
   required TextEditingController addressController,
@@ -32,6 +33,7 @@ Future<void> sendLocationToFirebase({
       products.add({
         'productId': productIds[i],
         'productName': productDataList[i]['name'],
+        'quantity': productQuantities[i], // Add the quantity of each product
       });
     }
 

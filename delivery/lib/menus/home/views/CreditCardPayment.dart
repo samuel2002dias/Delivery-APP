@@ -10,6 +10,7 @@ class CreditCardPayment extends StatefulWidget {
   final double totalAmount;
   final List<String> productIds;
   final List<Map<String, dynamic>> productDataList;
+  final List<int> productQuantities;
   final TextEditingController numberController;
   final TextEditingController observationsController;
   final TextEditingController addressController;
@@ -22,6 +23,7 @@ class CreditCardPayment extends StatefulWidget {
     required this.totalAmount,
     required this.productIds,
     required this.productDataList,
+    required this.productQuantities,
     required this.numberController,
     required this.observationsController,
     required this.addressController,
@@ -60,6 +62,7 @@ class _CreditCardPaymentState extends State<CreditCardPayment> {
           context: context,
           productIds: widget.productIds,
           productDataList: widget.productDataList,
+          productQuantities: widget.productQuantities,
           numberController: widget.numberController,
           observationsController: widget.observationsController,
           addressController: widget.addressController,

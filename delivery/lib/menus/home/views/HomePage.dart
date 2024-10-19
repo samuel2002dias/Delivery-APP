@@ -2,16 +2,29 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
-
 import 'package:delivery/menus/home/views/CartPage.dart';
 import 'package:delivery/menus/home/views/DetailsPage.dart';
+import 'package:delivery/menus/home/views/RequestList.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   Future<void> addToCart(
       String productId, Map<String, dynamic> productData, int quantity) async {
@@ -121,8 +134,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHomePage(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -355,6 +367,38 @@ class HomePage extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRequestsPage(BuildContext context) {
+    return const RequestList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> _pages = [
+      _buildHomePage(context),
+      _buildRequestsPage(context),
+    ];
+
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Requests',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Color.fromRGBO(252, 185, 19, 1),
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }

@@ -1,5 +1,3 @@
-// ignore_for_file: file_names
-
 import 'package:delivery/ProductCard.dart';
 import 'package:delivery/menus/home/views/CreditCardPayment.dart';
 import 'package:delivery/menus/home/bloc/Firebase_BuyNow.dart';
@@ -322,12 +320,17 @@ class _BuyNowPageState extends State<BuyNowPage> {
                                   .map((product) =>
                                       product['data'] as Map<String, dynamic>)
                                   .toList();
+                          List<int> productQuantities = productsToShow
+                              .map((product) => product['quantity'] ?? 1)
+                              .cast<int>()
+                              .toList();
 
                           if (_isPaymentOnDelivery) {
                             sendLocationToFirebase(
                               context: context,
                               productIds: productIds,
                               productDataList: productDataList,
+                              productQuantities: productQuantities,
                               numberController: _numberController,
                               observationsController: _observationsController,
                               addressController: _addressController,
@@ -343,6 +346,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
                                   totalAmount: totalPrice,
                                   productIds: productIds,
                                   productDataList: productDataList,
+                                  productQuantities: productQuantities,
                                   numberController: _numberController,
                                   observationsController:
                                       _observationsController,
