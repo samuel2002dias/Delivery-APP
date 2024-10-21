@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 class RequestList extends StatelessWidget {
   const RequestList({Key? key}) : super(key: key);
@@ -77,6 +78,7 @@ class RequestList extends StatelessWidget {
               final totalPrice = requestData['price'];
               final products = requestData['products'] as List<dynamic>?;
               final status = requestData['status'];
+              final timestamp = requestData['timestamp'] as Timestamp?;
 
               if (products == null) {
                 return const SizedBox.shrink();
@@ -91,6 +93,11 @@ class RequestList extends StatelessWidget {
               // If there's only one product, fetch its data
               final productId =
                   products.length == 1 ? products[0]['productId'] : null;
+
+              // Format the timestamp to a readable date format
+              final formattedDate = timestamp != null
+                  ? DateFormat('dd-MM-yyyy - kk:mm').format(timestamp.toDate())
+                  : 'N/A';
 
               return Card(
                 margin: const EdgeInsets.all(8.0),
@@ -165,6 +172,7 @@ class RequestList extends StatelessWidget {
                                   ),
                                 const SizedBox(height: 8),
                                 Text('Total Price: \$${totalPrice ?? 'N/A'}'),
+                                Text('Date: $formattedDate'),
                               ],
                             ),
                           ),
