@@ -7,11 +7,13 @@ import 'package:webapp/bloc/authenticationBloc.dart';
 import 'package:webapp/menus/autenticacao/bloc/LogInBloc.dart';
 import 'package:webapp/menus/autenticacao/views/LogInPage.dart';
 import 'package:webapp/menus/base/views/BasePage.dart';
+import 'package:webapp/menus/create_bloc/create_bloc.dart';
 import 'package:webapp/menus/home/views/AddProduct.dart';
+import 'package:webapp/menus/home/views/EditProduct.dart';
 import 'package:webapp/menus/home/views/HomePage.dart';
 import 'package:webapp/menus/splash/views/SplashPage.dart';
 import 'package:webapp/product/src/firebase_product.dart';
-import 'package:webapp/upload_bloc/upload_bloc.dart';
+import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
 
 final _navKey = GlobalKey<NavigatorState>();
 final _shellNavKey = GlobalKey<NavigatorState>();
@@ -66,12 +68,29 @@ GoRouter router(AuthenticationBloc authBloc) {
                     )),
             GoRoute(
               path: '/add-product',
-              builder: (context, state) => BlocProvider<UploadPictureBloc>(
-                create: (context) => UploadPictureBloc(FirebaseProduct()),
+              builder: (context, state) => MultiBlocProvider(
+                providers: [
+                  BlocProvider<UploadPictureBloc>(
+                    create: (context) => UploadPictureBloc(FirebaseProduct()),
+                  ),
+                  BlocProvider<CreateProductBloc>(
+                    create: (context) => CreateProductBloc(FirebaseProduct()),
+                  ),
+                ],
                 child: const AddProduct(),
               ),
-            )
-          ])
+            ),
+            GoRoute(
+              path: '/edit-product/:productID',
+              builder: (context, state) {
+                final productID = state.pathParameters['productID']!;
+                return BlocProvider(
+                  create: (context) => UploadPictureBloc(FirebaseProduct()),
+                  child: EditProductPage(productID: productID),
+                );
+              },
+            ),
+          ]),
     ],
   );
 }

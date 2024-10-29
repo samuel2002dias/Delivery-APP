@@ -10,7 +10,7 @@ class IngredientTextField extends StatelessWidget {
     Key? key,
     required this.controller,
     required this.hintText,
-    this.errorMsg,
+    this.errorMsg, required String? Function(dynamic val) validator,
   }) : super(key: key);
 
   @override

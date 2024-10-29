@@ -23,12 +23,30 @@ class FirebaseProduct implements ProductClass {
   Future<String> sendImage(Uint8List file, String name) async {
     try {
       Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(name);
-      await firebaseStorageRef.putData(file);
 
+      await firebaseStorageRef.putData(
+          file,
+          SettableMetadata(
+            contentType: 'image/jpeg',
+          ));
       return await firebaseStorageRef.getDownloadURL();
     } catch (e) {
       log(e.toString());
       rethrow;
     }
   }
+
+  @override
+  Future<void> createProduct(Product product) async {
+    try {
+      return await productList
+          .doc(product.productID)
+          .set(product.toEntity().toJson());
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+
 }

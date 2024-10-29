@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// ignore_for_file: file_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, unused_local_variable, unnecessary_cast
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/IngredientsWidget.dart';
@@ -156,7 +156,7 @@ class DetailsPage extends StatelessWidget {
                     child: Image.network(
                       productData['image'] ?? 'images/cheese.png',
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width - 40,
+                      height: MediaQuery.of(context).size.width - 190,
                       fit: BoxFit
                           .contain, // Ensure the image covers the container
                     ),
@@ -221,22 +221,22 @@ class DetailsPage extends StatelessWidget {
                 Row(
                   children: [
                     MyWidget(
-                      name: ingredients['ingredientName1'] ?? 'Ingredient 1',
+                      name: ingredients['ingredient1'] ?? 'Ingredient 1',
                       icon: FontAwesomeIcons.carrot,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredientName2'] ?? 'Ingredient 2',
+                      name: ingredients['ingredient2'] ?? 'Ingredient 2',
                       icon: FontAwesomeIcons.carrot,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredientName3'] ?? 'Ingredient 3',
+                      name: ingredients['ingredient3'] ?? 'Ingredient 3',
                       icon: FontAwesomeIcons.drumstickBite,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredientName4'] ?? 'Ingredient 4',
+                      name: ingredients['ingredient4'] ?? 'Ingredient 4',
                       icon: FontAwesomeIcons.cheese,
                     ),
                     const SizedBox(width: 8),

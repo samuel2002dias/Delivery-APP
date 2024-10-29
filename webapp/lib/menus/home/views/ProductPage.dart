@@ -25,6 +25,44 @@ class ProductPage extends StatelessWidget {
     }
   }
 
+  Future<void> _removeProduct(String productId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('product')
+          .doc(productId)
+          .delete();
+    } catch (e) {
+      print('Error removing product: $e');
+    }
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, String productId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this product?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _removeProduct(productId);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,28 +227,61 @@ class ProductPage extends StatelessWidget {
                                     Positioned(
                                       bottom: 8.0,
                                       right: 8.0,
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // Add your edit product logic here
-                                          print('Edit product tapped');
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromRGBO(
-                                              252, 185, 19, 1), // Button color
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                25.0), // Same border radius as container
+                                      child: Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              context.go(
+                                                  '/edit-product/${productData['productID']}');
+                                              print('Edit product tapped');
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color.fromRGBO(252, 185,
+                                                      19, 1), // Button color
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    25.0), // Same border radius as container
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'Edit product',
+                                              style: TextStyle(
+                                                fontSize:
+                                                    18.0, // Font size for the button
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    Colors.white, // Text color
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        child: const Text(
-                                          'Edit product',
-                                          style: TextStyle(
-                                            fontSize:
-                                                18.0, // Font size for the button
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white, // Text color
+                                          const SizedBox(width: 8.0),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _showDeleteConfirmationDialog(
+                                                  context, productData['productID']);
+                                              print('Remove product tapped');
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Colors.red, // Button color
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    25.0), // Same border radius as container
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'Remove product',
+                                              style: TextStyle(
+                                                fontSize:
+                                                    18.0, // Font size for the button
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    Colors.white, // Text color
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ),
                                   ],

@@ -293,8 +293,8 @@ class _HomePageState extends State<HomePage> {
                               child: ClipOval(
                                 child: Image.network(
                                   productData['image'] ?? 'images/cheese.png',
-                                  height: 130.0, // Adjust the height as needed
-                                  width: 130.0, // Adjust the width as needed
+                                  height: 100.0, // Adjust the height as needed
+                                  width: 100.0, // Adjust the width as needed
                                   fit: BoxFit
                                       .cover, // Ensure the image covers the entire area
                                 ),
@@ -315,6 +315,8 @@ class _HomePageState extends State<HomePage> {
                                             20.0, // Larger font size for the name
                                         fontWeight: FontWeight.bold,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     const SizedBox(
                                         height:
@@ -327,6 +329,8 @@ class _HomePageState extends State<HomePage> {
                                             16.0, // Smaller font size for the ingredients
                                         color: Colors.grey[700],
                                       ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ],
                                 ),
