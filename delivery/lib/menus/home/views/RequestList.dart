@@ -213,6 +213,8 @@ class RequestList extends StatelessWidget {
         return const Color.fromRGBO(252, 185, 19, 1);
       case 'Completed':
         return Colors.green;
+      case 'Cancelled':
+        return Colors.red;
       default:
         return Colors.grey; // Default color if status is unknown
     }

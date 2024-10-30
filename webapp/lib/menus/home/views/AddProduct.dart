@@ -1,10 +1,11 @@
+// ignore_for_file: avoid_print, library_private_types_in_public_api, file_names
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:webapp/TextField.dart';
 import 'package:webapp/menus/create_bloc/create_bloc.dart';
@@ -201,7 +202,9 @@ class _AddProductState extends State<AddProduct> {
                                   controller: ingredient1Controller,
                                   hintText: 'Ingredient 1',
                                   errorMsg: _errorMsg,
-                                  validator: (val) {},
+                                  validator: (val) {
+                                    return null;
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -210,7 +213,9 @@ class _AddProductState extends State<AddProduct> {
                                   controller: ingredient2Controller,
                                   hintText: 'Ingredient 2',
                                   errorMsg: _errorMsg,
-                                  validator: (val) {},
+                                  validator: (val) {
+                                    return null;
+                                  },
                                 ),
                               ),
                             ],
@@ -223,7 +228,9 @@ class _AddProductState extends State<AddProduct> {
                                   controller: ingredient3Controller,
                                   hintText: 'Ingredient 3',
                                   errorMsg: _errorMsg,
-                                  validator: (val) {},
+                                  validator: (val) {
+                                    return null;
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -232,7 +239,9 @@ class _AddProductState extends State<AddProduct> {
                                   controller: ingredient4Controller,
                                   hintText: 'Ingredient 4',
                                   errorMsg: _errorMsg,
-                                  validator: (val) {},
+                                  validator: (val) {
+                                    return null;
+                                  },
                                 ),
                               ),
                             ],

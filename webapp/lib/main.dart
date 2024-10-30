@@ -10,8 +10,8 @@ import 'simple_bloc_observer.dart';
 
 void main() async {
   setPathUrlStrategy();
-      GoRouter.optionURLReflectsImperativeAPIs = true;
-      WidgetsFlutterBinding.ensureInitialized();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

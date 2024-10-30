@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webapp/menus/home/views/RequestPage.dart';
 import 'ProductPage.dart'; // Import the ProductPage
 
 class HomePage extends StatelessWidget {
@@ -27,7 +28,7 @@ class HomePage extends StatelessWidget {
               child: TabBarView(
                 children: [
                   ProductPage(), // Redirect to ProductPage
-                  Center(child: Text('Requests Page')),
+                  RequestPage(),
                   Center(child: Text('Clients Page')),
                 ],
               ),
