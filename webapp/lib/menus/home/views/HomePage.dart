@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webapp/menus/home/views/ClientsPage.dart';
 import 'package:webapp/menus/home/views/RequestPage.dart';
 import 'ProductPage.dart'; // Import the ProductPage
 
@@ -7,12 +8,12 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DefaultTabController(
+    return DefaultTabController(
       length: 3,
       child: Scaffold(
         body: Column(
           children: [
-            TabBar(
+            const TabBar(
               indicatorColor: Color.fromRGBO(252, 185, 19, 1),
               labelColor:
                   Colors.black, // Set the selected tab text color to black
@@ -27,9 +28,9 @@ class HomePage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  ProductPage(), // Redirect to ProductPage
-                  RequestPage(),
-                  Center(child: Text('Clients Page')),
+                  const ProductPage(), // Redirect to ProductPage
+                  const RequestPage(),
+                  ClientsPage(),
                 ],
               ),
             ),
