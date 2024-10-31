@@ -14,6 +14,7 @@ import 'package:webapp/menus/home/views/HomePage.dart';
 import 'package:webapp/menus/splash/views/SplashPage.dart';
 import 'package:webapp/product/src/firebase_product.dart';
 import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
+import 'package:webapp/menus/home/views/FeedbackGiven.dart'; // Import FeedbackGiven page
 
 final _navKey = GlobalKey<NavigatorState>();
 final _shellNavKey = GlobalKey<NavigatorState>();
@@ -64,7 +65,7 @@ GoRouter router(AuthenticationBloc authBloc) {
                 builder: (context, state) =>
                     BlocProvider<AuthenticationBloc>.value(
                       value: BlocProvider.of<AuthenticationBloc>(context),
-                      child: const HomePage(),
+                      child: HomePage(),
                     )),
             GoRoute(
               path: '/add-product',
@@ -88,6 +89,13 @@ GoRouter router(AuthenticationBloc authBloc) {
                   create: (context) => UploadPictureBloc(FirebaseProduct()),
                   child: EditProductPage(productID: productID),
                 );
+              },
+            ),
+            GoRoute(
+              path: '/feedbacks-given/:userId',
+              builder: (context, state) {
+                final userID = state.pathParameters['userId']!;
+                return FeedbacksGiven(userID: userID);
               },
             ),
           ]),

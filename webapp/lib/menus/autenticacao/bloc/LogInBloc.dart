@@ -33,12 +33,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       await _userRepository.logOut();
       emit(SignOutSuccess());
     });
-
   }
 
   Future<bool> isAdmin(String uid) async {
     DocumentSnapshot userDoc =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    return userDoc.exists && userDoc['role'] == 'Admin';
+    if (userDoc.exists) {
+      String role = userDoc['role'];
+      return role == 'Admin' || role == 'Delivery Guy';
+    }
+    return false;
   }
 }
