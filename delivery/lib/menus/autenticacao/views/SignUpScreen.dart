@@ -17,6 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final passwordController = TextEditingController();
   final emailController = TextEditingController();
   final nameController = TextEditingController();
+  final phoneController = TextEditingController(); // Added phone controller
   final _formKey = GlobalKey<FormState>();
   IconData iconPassword = CupertinoIcons.eye_fill;
   bool obscurePassword = true;
@@ -227,6 +228,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                   ),
                 ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: MyTextField(
+                    controller: phoneController,
+                    hintText: 'Phone Number',
+                    obscureText: false,
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: const Icon(CupertinoIcons.phone_fill),
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return 'Please fill in this field';
+                      } else if (!RegExp(r'^\d{9}$').hasMatch(val)) {
+                        return 'Please enter a valid 9-digit phone number';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 !signUpRequired
                     ? SizedBox(
@@ -237,6 +257,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               MyUser myUser = MyUser.empty;
                               myUser.email = emailController.text;
                               myUser.name = nameController.text;
+                              myUser.phone =
+                                  phoneController.text; // Added phone number
 
                               setState(() {
                                 context.read<SignUpBloc>().add(SignUpRequired(

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:delivery/app.dart';
 import 'package:delivery/simple_bloc_observer.dart';
 import 'package:delivery/user/firebase_user.dart';
