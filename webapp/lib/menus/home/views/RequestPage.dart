@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:geolocator/geolocator.dart';
 
 class RequestPage extends StatelessWidget {
   const RequestPage({super.key});
@@ -47,13 +50,18 @@ class RequestPage extends StatelessWidget {
   }
 
   void _openGoogleMaps(String address) async {
-    final query = Uri.encodeComponent(address);
-    final googleMapsUrl =
-        'https://www.google.com/maps/search/?api=1&query=$query';
-    if (await canLaunchUrlString(googleMapsUrl)) {
-      await launchUrlString(googleMapsUrl);
-    } else {
-      throw 'Could not open Google Maps';
+    try {
+      final query = Uri.encodeComponent(address);
+      final googleMapsUrl =
+          'https://www.google.com/maps/dir/?api=1&destination=$query';
+
+      if (await canLaunch(googleMapsUrl)) {
+        await launch(googleMapsUrl);
+      } else {
+        throw 'Could not open Google Maps';
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 

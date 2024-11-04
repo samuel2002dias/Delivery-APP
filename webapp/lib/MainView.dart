@@ -9,7 +9,7 @@ class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: "Admin WebAPP",
+      title: "Restaurant WebApp",
       debugShowCheckedModeBanner: false,
       routerConfig: router(context.read<AuthenticationBloc>()),
     );

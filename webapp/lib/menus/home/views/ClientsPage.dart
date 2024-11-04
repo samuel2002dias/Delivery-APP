@@ -54,6 +54,16 @@ class _ClientsPageState extends State<ClientsPage> {
                   }
 
                   final feedbackCount = feedbackSnapshot.data ?? 0;
+                  final role = client['role'];
+                  Color iconColor;
+
+                  if (role == 'Admin') {
+                    iconColor = Color.fromRGBO(252, 185, 19, 1);
+                  } else if (role == 'Delivery Guy') {
+                    iconColor = Colors.blue;
+                  } else {
+                    iconColor = Colors.black;
+                  }
 
                   return InkWell(
                     onTap: () {
@@ -74,99 +84,116 @@ class _ClientsPageState extends State<ClientsPage> {
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          Text(
-                            client['name'] ?? 'No Name',
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          Row(
+                          Column(
                             children: [
-                              const Text(
-                                'Email: ',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                client['email'] ?? 'No Email',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                ),
-                              ),
+                              Icon(Icons.person, size: 60.0, color: iconColor),
+                              if (role != null && role == 'admin')
+                                Icon(Icons.admin_panel_settings,
+                                    size: 48.0, color: iconColor),
                             ],
                           ),
-                          Row(
-                            children: [
-                              const Text(
-                                'Role: ',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                client['role'] ?? 'No role',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8.0),
-                          Row(
-                            children: [
-                              const Text(
-                                'Feedbacks Given: ',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '$feedbackCount',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red, // Button color
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        8.0), // Same border radius as container
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8.0,
-                                    horizontal: 16.0,
-                                  ), // Reduced padding
-                                ),
-                                onPressed: () async {
-                                  await _banClient(client.id);
-                                },
-                                child: const Text(
-                                  'Ban Client',
-                                  style: TextStyle(
-                                    fontSize:
-                                        16.0, // Reduced font size for the button
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 16.0),
+                                Text(
+                                  client['name'] ?? 'No Name',
+                                  style: const TextStyle(
+                                    fontSize: 18.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white, // Text color
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 32.0),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Email: ',
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      client['email'] ?? 'No Email',
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Role: ',
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      client['role'] ?? 'No role',
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8.0),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Feedbacks Given: ',
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '$feedbackCount',
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8.0),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Colors.red, // Button color
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Same border radius as container
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0,
+                                          horizontal: 16.0,
+                                        ), // Reduced padding
+                                      ),
+                                      onPressed: () async {
+                                        await _banClient(client.id);
+                                      },
+                                      child: const Text(
+                                        'Ban Client',
+                                        style: TextStyle(
+                                          fontSize:
+                                              16.0, // Reduced font size for the button
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white, // Text color
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

@@ -25,7 +25,7 @@ class ProductPage extends StatelessWidget {
     }
   }
 
-  Future<void> _removeProduct(String productId) async {
+  Future<void> _Product(String productId) async {
     try {
       await FirebaseFirestore.instance
           .collection('product')
@@ -52,7 +52,7 @@ class ProductPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                _removeProduct(productId);
+                _Product(productId);
                 Navigator.of(context).pop();
               },
               child: const Text('Delete'),
@@ -65,6 +65,9 @@ class ProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isLargeScreen = screenSize.width > 600;
+
     return Scaffold(
       appBar: AppBar(),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -85,12 +88,8 @@ class ProductPage extends StatelessWidget {
                     itemCount: products.length,
                     itemBuilder: (context, index) {
                       var productData = products[index];
-                      print(
-                          'Product Data: $productData'); // Debug print for product data
                       String imagePath =
                           productData['image'] ?? 'images/Logo.png';
-                      print(
-                          'Image Path: $imagePath'); // Debug print for image path
 
                       return FutureBuilder<String>(
                         future: _getImageUrl(imagePath),
@@ -105,53 +104,45 @@ class ProductPage extends StatelessWidget {
                           } else {
                             String imageUrl =
                                 snapshot.data ?? 'images/Logo.png';
-                            print(
-                                'Image URL: $imageUrl'); // Debug print for image URL
 
                             return Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 8.0, horizontal: 16.0),
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                  horizontal: isLargeScreen ? 32.0 : 16.0),
                               child: AnimatedContainer(
-                                duration: const Duration(
-                                    seconds:
-                                        1), // Set the duration of the animation
-                                curve: Curves
-                                    .easeInOut, // Set the curve of the animation
+                                duration: const Duration(seconds: 1),
+                                curve: Curves.easeInOut,
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                      25.0), // Set border radius
+                                  borderRadius: BorderRadius.circular(10.0),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey.shade400.withOpacity(
-                                          0.5), // Shadow color with opacity
-                                      spreadRadius: 3, // Spread radius
-                                      blurRadius: 5, // Blur radius
-                                      offset: const Offset(
-                                          2, 2), // Offset in x and y direction
+                                      color:
+                                          Colors.grey.shade400.withOpacity(0.5),
+                                      spreadRadius: 3,
+                                      blurRadius: 5,
+                                      offset: const Offset(2, 2),
                                     ),
                                   ],
                                 ),
-                                height:
-                                    150.0, // Specify the height of the container
-                                width: double
-                                    .infinity, // Make the container take the full width
+                                height: isLargeScreen
+                                    ? 170.0
+                                    : 186.0, // Adjusted height
+                                width: double.infinity,
                                 child: Stack(
                                   children: [
                                     Row(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(
-                                              8.0), // Padding around the image
+                                          padding: const EdgeInsets.all(8.0),
                                           child: ClipOval(
                                             child: Image.network(
                                               imageUrl,
                                               height:
-                                                  130.0, // Adjust the height as needed
+                                                  isLargeScreen ? 100.0 : 100.0,
                                               width:
-                                                  130.0, // Adjust the width as needed
-                                              fit: BoxFit
-                                                  .cover, // Ensure the image covers the entire area
+                                                  isLargeScreen ? 100.0 : 100.0,
+                                              fit: BoxFit.cover,
                                               loadingBuilder: (context, child,
                                                   loadingProgress) {
                                                 if (loadingProgress == null) {
@@ -173,14 +164,14 @@ class ProductPage extends StatelessWidget {
                                               },
                                               errorBuilder:
                                                   (context, error, stackTrace) {
-                                                print(
-                                                    'Error loading image: $error'); // Debug print for image loading error
-                                                print(
-                                                    'Stack trace: $stackTrace'); // Debug print for stack trace
                                                 return Image.asset(
                                                   'images/Logo.png',
-                                                  height: 130.0,
-                                                  width: 130.0,
+                                                  height: isLargeScreen
+                                                      ? 150.0
+                                                      : 130.0,
+                                                  width: isLargeScreen
+                                                      ? 150.0
+                                                      : 130.0,
                                                   fit: BoxFit.cover,
                                                 );
                                               },
@@ -189,8 +180,7 @@ class ProductPage extends StatelessWidget {
                                         ),
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.all(
-                                                8.0), // Padding around the text
+                                            padding: const EdgeInsets.all(8.0),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -200,23 +190,28 @@ class ProductPage extends StatelessWidget {
                                                 Text(
                                                   productData['name'] ??
                                                       'Product Name',
-                                                  style: const TextStyle(
-                                                    fontSize:
-                                                        20.0, // Larger font size for the name
+                                                  style: TextStyle(
+                                                    fontSize: isLargeScreen
+                                                        ? 24.0
+                                                        : 20.0,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                                const SizedBox(
-                                                    height:
-                                                        4.0), // Space between name and ingredients
+                                                const SizedBox(height: 4.0),
                                                 Text(
                                                   productData['description'] ??
                                                       'Description',
                                                   style: TextStyle(
-                                                    fontSize:
-                                                        16.0, // Smaller font size for the ingredients
+                                                    fontSize: isLargeScreen
+                                                        ? 18.0
+                                                        : 16.0,
                                                     color: Colors.grey[700],
                                                   ),
+                                                  maxLines:
+                                                      isLargeScreen ? null : 1,
+                                                  overflow: isLargeScreen
+                                                      ? TextOverflow.visible
+                                                      : TextOverflow.ellipsis,
                                                 ),
                                               ],
                                             ),
@@ -228,30 +223,35 @@ class ProductPage extends StatelessWidget {
                                       bottom: 8.0,
                                       right: 8.0,
                                       child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           ElevatedButton(
                                             onPressed: () {
                                               context.go(
                                                   '/edit-product/${productData['productID']}');
-                                              print('Edit product tapped');
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
-                                                  const Color.fromRGBO(252, 185,
-                                                      19, 1), // Button color
+                                                  const Color.fromRGBO(
+                                                      252, 185, 19, 1),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    25.0), // Same border radius as container
+                                                borderRadius:
+                                                    BorderRadius.circular(25.0),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical:
+                                                    isLargeScreen ? 12.0 : 8.0,
+                                                horizontal:
+                                                    isLargeScreen ? 24.0 : 16.0,
                                               ),
                                             ),
-                                            child: const Text(
-                                              'Edit product',
+                                            child: Text(
+                                              'Edit',
                                               style: TextStyle(
                                                 fontSize:
-                                                    18.0, // Font size for the button
+                                                    isLargeScreen ? 20.0 : 16.0,
                                                 fontWeight: FontWeight.bold,
-                                                color:
-                                                    Colors.white, // Text color
+                                                color: Colors.white,
                                               ),
                                             ),
                                           ),
@@ -259,25 +259,29 @@ class ProductPage extends StatelessWidget {
                                           ElevatedButton(
                                             onPressed: () {
                                               _showDeleteConfirmationDialog(
-                                                  context, productData['productID']);
-                                              print('Remove product tapped');
+                                                  context,
+                                                  productData['productID']);
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.red, // Button color
+                                              backgroundColor: Colors.red,
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    25.0), // Same border radius as container
+                                                borderRadius:
+                                                    BorderRadius.circular(25.0),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical:
+                                                    isLargeScreen ? 12.0 : 8.0,
+                                                horizontal:
+                                                    isLargeScreen ? 24.0 : 16.0,
                                               ),
                                             ),
-                                            child: const Text(
-                                              'Remove product',
+                                            child: Text(
+                                              'Remove',
                                               style: TextStyle(
                                                 fontSize:
-                                                    18.0, // Font size for the button
+                                                    isLargeScreen ? 20.0 : 16.0,
                                                 fontWeight: FontWeight.bold,
-                                                color:
-                                                    Colors.white, // Text color
+                                                color: Colors.white,
                                               ),
                                             ),
                                           ),
@@ -299,24 +303,22 @@ class ProductPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       context.go('/add-product');
-                      print('Add product tapped');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color.fromRGBO(252, 185, 19, 1), // Button color
+                      backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            25.0), // Same border radius as container
+                        borderRadius: BorderRadius.circular(25.0),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 32.0), // Increase padding
+                      padding: EdgeInsets.symmetric(
+                          vertical: isLargeScreen ? 20.0 : 16.0,
+                          horizontal: isLargeScreen ? 40.0 : 32.0),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Add Product',
                       style: TextStyle(
-                        fontSize: 20.0, // Increase font size for the button
+                        fontSize: isLargeScreen ? 22.0 : 18.0,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // Text color
+                        color: Colors.white,
                       ),
                     ),
                   ),
