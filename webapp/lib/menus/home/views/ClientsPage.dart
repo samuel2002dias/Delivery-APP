@@ -20,19 +20,10 @@ class _ClientsPageState extends State<ClientsPage> {
     return feedbacks.docs.length;
   }
 
-  Future<void> _banClient(String userId, String email, String password) async {
+  Future<void> _banClient(String userId) async {
     try {
       // Delete user from Firestore
       await _firestore.collection('users').doc(userId).delete();
-
-      // Re-authenticate and delete user from Firebase Authentication
-      User? user = _auth.currentUser;
-      if (user != null) {
-        AuthCredential credential =
-            EmailAuthProvider.credential(email: email, password: password);
-        await user.reauthenticateWithCredential(credential);
-        await user.delete();
-      }
     } catch (e) {
       print('Error banning client: $e');
     }
@@ -73,8 +64,7 @@ class _ClientsPageState extends State<ClientsPage> {
                   final role = client['role'];
                   final phone = client['phone'];
                   final email = client['email'];
-                  final password = client[
-                      'password']; // Assuming password is stored in Firestore
+                  // Assuming password is stored in Firestore
                   Color iconColor;
 
                   if (role == 'Admin') {
@@ -218,8 +208,7 @@ class _ClientsPageState extends State<ClientsPage> {
                                         ), // Reduced padding
                                       ),
                                       onPressed: () async {
-                                        await _banClient(
-                                            client.id, email, password);
+                                        await _banClient(client.id);
                                       },
                                       child: const Text(
                                         'Ban Client',
