@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
 class ClientsPage extends StatefulWidget {
@@ -9,6 +10,7 @@ class ClientsPage extends StatefulWidget {
 
 class _ClientsPageState extends State<ClientsPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<int> _getFeedbackCount(String userId) async {
     final feedbacks = await _firestore
@@ -18,8 +20,22 @@ class _ClientsPageState extends State<ClientsPage> {
     return feedbacks.docs.length;
   }
 
-  Future<void> _banClient(String userId) async {
-    await _firestore.collection('users').doc(userId).delete();
+  Future<void> _banClient(String userId, String email, String password) async {
+    try {
+      // Delete user from Firestore
+      await _firestore.collection('users').doc(userId).delete();
+
+      // Re-authenticate and delete user from Firebase Authentication
+      User? user = _auth.currentUser;
+      if (user != null) {
+        AuthCredential credential =
+            EmailAuthProvider.credential(email: email, password: password);
+        await user.reauthenticateWithCredential(credential);
+        await user.delete();
+      }
+    } catch (e) {
+      print('Error banning client: $e');
+    }
   }
 
   @override
@@ -55,6 +71,10 @@ class _ClientsPageState extends State<ClientsPage> {
 
                   final feedbackCount = feedbackSnapshot.data ?? 0;
                   final role = client['role'];
+                  final phone = client['phone'];
+                  final email = client['email'];
+                  final password = client[
+                      'password']; // Assuming password is stored in Firestore
                   Color iconColor;
 
                   if (role == 'Admin') {
@@ -146,6 +166,25 @@ class _ClientsPageState extends State<ClientsPage> {
                                 Row(
                                   children: [
                                     const Text(
+                                      'Phone: ',
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      phone != null && phone.isNotEmpty
+                                          ? phone
+                                          : 'Admin or Delivery Guy',
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text(
                                       'Feedbacks Given: ',
                                       style: TextStyle(
                                         fontSize: 16.0,
@@ -160,6 +199,7 @@ class _ClientsPageState extends State<ClientsPage> {
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 8.0),
                                 const SizedBox(height: 8.0),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -178,7 +218,8 @@ class _ClientsPageState extends State<ClientsPage> {
                                         ), // Reduced padding
                                       ),
                                       onPressed: () async {
-                                        await _banClient(client.id);
+                                        await _banClient(
+                                            client.id, email, password);
                                       },
                                       child: const Text(
                                         'Ban Client',
