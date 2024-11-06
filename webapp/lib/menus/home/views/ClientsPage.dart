@@ -165,7 +165,7 @@ class _ClientsPageState extends State<ClientsPage> {
                                     Text(
                                       phone != null && phone.isNotEmpty
                                           ? phone
-                                          : 'Admin or Delivery Guy',
+                                          : 'Admin',
                                       style: const TextStyle(
                                         fontSize: 16.0,
                                       ),

@@ -65,6 +65,12 @@ class RequestPage extends StatelessWidget {
     }
   }
 
+  Future<Map<String, dynamic>> _getUserDetails(String userId) async {
+    DocumentSnapshot userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return userSnapshot.data() as Map<String, dynamic>;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,182 +104,237 @@ class RequestPage extends StatelessWidget {
               // Check the status
               final status = request['status'];
 
-              return Container(
-                margin: const EdgeInsets.all(8.0),
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
+              return FutureBuilder<Map<String, dynamic>>(
+                future: _getUserDetails(request['userId']),
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!userSnapshot.hasData) {
+                    return const Center(
+                        child: Text('User details not available'));
+                  }
+                  final user = userSnapshot.data!;
+                  final userName = user['name'];
+                  final userPhone = user['phone'];
+
+                  return Container(
+                    margin: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Stack(
                       children: [
-                        Text(
-                          'Request: ${productNames.join(', ')}',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Timestamp: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: formattedTimestamp,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Address: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: request['address'],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Price: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '\$${request['price']}',
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Payment: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text: request['payment'],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: _getStatusColor(status),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, // Reduced vertical padding
-                                horizontal: 16.0, // Reduced horizontal padding
-                              ),
-                              child: Text(
-                                '$status',
-                                style: const TextStyle(
-                                  fontSize: 16.0, // Reduced font size
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                            Text(
+                              'Request: ${productNames.join(', ')}',
+                              style: const TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromRGBO(
-                                        252, 185, 19, 1), // Button color
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Same border radius as container
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4.0,
-                                        horizontal: 8.0), // Reduced padding
-                                  ),
-                                  onPressed: () => _upgradeStatus(request),
-                                  child: const Text(
-                                    'Upgrade',
+                            const SizedBox(height: 8.0),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'User: ',
                                     style: TextStyle(
-                                      fontSize:
-                                          12.0, // Reduced font size for the button
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white, // Text color
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: userName,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 4.0),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Phone: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: userPhone,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Timestamp: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: formattedTimestamp,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Address: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: request['address'],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Price: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '\$${request['price']}',
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Payment: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: request['payment'],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(status),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, // Reduced vertical padding
+                                    horizontal:
+                                        16.0, // Reduced horizontal padding
+                                  ),
+                                  child: Text(
+                                    '$status',
+                                    style: const TextStyle(
+                                      fontSize: 16.0, // Reduced font size
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8.0),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red, // Button color
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          8.0), // Same border radius as container
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromRGBO(
+                                            252, 185, 19, 1), // Button color
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Same border radius as container
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0,
+                                            horizontal: 8.0), // Reduced padding
+                                      ),
+                                      onPressed: status == 'Completed' ||
+                                              status == 'Canceled'
+                                          ? null
+                                          : () => _upgradeStatus(request),
+                                      child: const Text(
+                                        'Upgrade',
+                                        style: TextStyle(
+                                          fontSize:
+                                              12.0, // Reduced font size for the button
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white, // Text color
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                        horizontal: 16.0), // Reduced padding
-                                  ),
-                                  onPressed: () => _cancelRequest(request),
-                                  child: const Text(
-                                    'Cancel',
-                                    style: TextStyle(
-                                      fontSize:
-                                          16.0, // Reduced font size for the button
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white, // Text color
+                                    const SizedBox(width: 8.0),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Colors.red, // Button color
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              8.0), // Same border radius as container
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0,
+                                            horizontal:
+                                                16.0), // Reduced padding
+                                      ),
+                                      onPressed: () => _cancelRequest(request),
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontSize:
+                                              16.0, // Reduced font size for the button
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white, // Text color
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),
                           ],
                         ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.map),
+                            color: Colors.blue,
+                            iconSize: 32.0,
+                            onPressed: () =>
+                                _openGoogleMaps(request['address']),
+                          ),
+                        ),
                       ],
                     ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: IconButton(
-                        icon: const Icon(Icons.map),
-                        color: Colors.blue,
-                        iconSize: 32.0,
-                        onPressed: () => _openGoogleMaps(request['address']),
-                      ),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
