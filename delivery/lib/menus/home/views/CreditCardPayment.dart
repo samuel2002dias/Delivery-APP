@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import
+
 import 'package:delivery/menus/home/bloc/Firebase_BuyNow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_brand.dart';
@@ -75,8 +77,8 @@ class _CreditCardPaymentState extends State<CreditCardPayment> {
         // Show a SnackBar instead of an AlertDialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                const Text('Your payment has been processed successfully.'),
+            content: const Text(
+                'Stripe has proceeded with the payment successfully'),
             duration: const Duration(seconds: 3),
             action: SnackBarAction(
               label: 'OK',
@@ -94,7 +96,7 @@ class _CreditCardPaymentState extends State<CreditCardPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Credit Card Payment'),
+        title: const Text('Proceed the payment'),
       ),
       body: SafeArea(
         child: Column(
@@ -136,7 +138,7 @@ class _CreditCardPaymentState extends State<CreditCardPayment> {
                       obscureNumber: true,
                       cardNumberDecoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Number',
+                        labelText: 'Card Number',
                         hintText: 'XXXX XXXX XXXX XXXX',
                       ),
                       expiryDateDecoration: const InputDecoration(
