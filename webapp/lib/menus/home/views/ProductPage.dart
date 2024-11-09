@@ -1,3 +1,6 @@
+// ignore_for_file: sort_child_properties_last
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -69,7 +72,9 @@ class ProductPage extends StatelessWidget {
     final isLargeScreen = screenSize.width > 600;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Product Page'),
+      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchProducts(),
         builder: (context, snapshot) {
@@ -327,6 +332,13 @@ class ProductPage extends StatelessWidget {
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.go('/addImage');
+        },
+        child: const Icon(CupertinoIcons.photo_camera, color: Colors.white),
+        backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
       ),
     );
   }

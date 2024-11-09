@@ -57,10 +57,10 @@ class _EditProductPageState extends State<EditProductPage> {
           priceController.text =
               data['price']?.toString() ?? ''; // Populate price
           Map<String, dynamic> ingredients = data['ingredients'] ?? {};
-          ingredient1Controller.text = ingredients['ingredient1'] ?? '';
-          ingredient2Controller.text = ingredients['ingredient2'] ?? '';
-          ingredient3Controller.text = ingredients['ingredient3'] ?? '';
-          ingredient4Controller.text = ingredients['ingredient4'] ?? '';
+          ingredient1Controller.text = ingredients['ingredientName1'] ?? '';
+          ingredient2Controller.text = ingredients['ingredientName2'] ?? '';
+          ingredient3Controller.text = ingredients['ingredientName3'] ?? '';
+          ingredient4Controller.text = ingredients['ingredientName4'] ?? '';
           product = Product(
             productID: widget.productID,
             name: data['name'] ?? '',
@@ -69,10 +69,10 @@ class _EditProductPageState extends State<EditProductPage> {
             price: data['price'] ?? 0.0,
             ingredients: Ingredients(
               ingredientID: data['ingredientID'] ?? '',
-              ingredientName1: ingredients['ingredient1'] ?? '',
-              ingredientName2: ingredients['ingredient2'] ?? '',
-              ingredientName3: ingredients['ingredient3'] ?? '',
-              ingredientName4: ingredients['ingredient4'] ?? '',
+              ingredientName1: ingredients['ingredientName1'] ?? '',
+              ingredientName2: ingredients['ingredientName2'] ?? '',
+              ingredientName3: ingredients['ingredientName3'] ?? '',
+              ingredientName4: ingredients['ingredientName4'] ?? '',
             ),
           );
           selectedImageName = data['image'] ?? '';
