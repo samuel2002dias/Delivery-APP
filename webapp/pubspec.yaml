@@ -51,6 +51,7 @@ dependencies:
   url_launcher: ^6.0.20
   geolocator: ^8.0.0
   geolocator_web: ^2.0.0
+  table_calendar: ^3.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

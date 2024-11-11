@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:webapp/menus/home/views/ClientsPage.dart';
 import 'package:webapp/menus/home/views/RequestPage.dart';
+import 'package:webapp/menus/home/views/StatsPage.dart';
 import 'ProductPage.dart'; // Import the ProductPage
 
 class HomePage extends StatelessWidget {
@@ -23,7 +24,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         body: Column(
           children: [
@@ -37,6 +38,7 @@ class HomePage extends StatelessWidget {
                 Tab(text: 'Products'),
                 Tab(text: 'Requests'),
                 Tab(text: 'Clients'),
+                Tab(text: 'Stats'),
               ],
             ),
             Expanded(
@@ -51,9 +53,10 @@ class HomePage extends StatelessWidget {
                     if (snapshot.data == 'Admin') {
                       return TabBarView(
                         children: [
-                          const ProductPage(), // Admin has access to all tabs
+                          const ProductPage(),
                           const RequestPage(),
                           ClientsPage(),
+                          const StatsPage(),
                         ],
                       );
                     } else if (snapshot.data == 'Delivery Guy') {
@@ -62,11 +65,13 @@ class HomePage extends StatelessWidget {
                           Center(child: Text('Access Denied')),
                           RequestPage(), // Delivery Guy has access only to Requests
                           Center(child: Text('Access Denied')),
+                          StatsPage(),
                         ],
                       );
                     } else {
                       return const TabBarView(
                         children: [
+                          Center(child: Text('Access Denied')),
                           Center(child: Text('Access Denied')),
                           Center(child: Text('Access Denied')),
                           Center(child: Text('Access Denied')),

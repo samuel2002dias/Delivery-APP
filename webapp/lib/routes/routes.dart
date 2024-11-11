@@ -14,7 +14,7 @@ import 'package:webapp/menus/home/views/HomePage.dart';
 import 'package:webapp/menus/splash/views/SplashPage.dart';
 import 'package:webapp/product/src/firebase_product.dart';
 import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
-import 'package:webapp/menus/home/views/FeedbackGiven.dart';
+import 'package:webapp/menus/home/views/UserStatus.dart';
 import 'package:webapp/menus/home/views/AddImage.dart'; // Import FeedbackGiven page
 
 final _navKey = GlobalKey<NavigatorState>();
@@ -93,7 +93,7 @@ GoRouter router(AuthenticationBloc authBloc) {
               },
             ),
             GoRoute(
-              path: '/feedbacks-given/:userId',
+              path: '/user-status/:userId',
               builder: (context, state) {
                 final userID = state.pathParameters['userId']!;
                 return FeedbacksGiven(userID: userID);

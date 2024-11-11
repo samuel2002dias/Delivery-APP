@@ -303,7 +303,10 @@ class RequestPage extends StatelessWidget {
                                             horizontal:
                                                 16.0), // Reduced padding
                                       ),
-                                      onPressed: () => _cancelRequest(request),
+                                      onPressed: status == 'Completed' ||
+                                              status == 'Canceled'
+                                          ? null
+                                          : () => _cancelRequest(request),
                                       child: const Text(
                                         'Cancel',
                                         style: TextStyle(

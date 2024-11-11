@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
 class ClientsPage extends StatefulWidget {
@@ -10,7 +9,6 @@ class ClientsPage extends StatefulWidget {
 
 class _ClientsPageState extends State<ClientsPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<int> _getFeedbackCount(String userId) async {
     final feedbacks = await _firestore
@@ -63,7 +61,7 @@ class _ClientsPageState extends State<ClientsPage> {
                   final feedbackCount = feedbackSnapshot.data ?? 0;
                   final role = client['role'];
                   final phone = client['phone'];
-                  final email = client['email'];
+
                   // Assuming password is stored in Firestore
                   Color iconColor;
 
@@ -77,7 +75,7 @@ class _ClientsPageState extends State<ClientsPage> {
 
                   return InkWell(
                     onTap: () {
-                      context.go('/feedbacks-given/${client.id}');
+                      context.go('/user-status/${client.id}');
                     },
                     child: Container(
                       margin: const EdgeInsets.all(8.0),
