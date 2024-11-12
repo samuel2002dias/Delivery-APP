@@ -15,7 +15,7 @@ import 'package:webapp/menus/splash/views/SplashPage.dart';
 import 'package:webapp/product/src/firebase_product.dart';
 import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
 import 'package:webapp/menus/home/views/UserStatus.dart';
-import 'package:webapp/menus/home/views/AddImage.dart'; // Import FeedbackGiven page
+import 'package:webapp/menus/home/views/ImageDetails.dart'; // Import FeedbackGiven page
 
 final _navKey = GlobalKey<NavigatorState>();
 final _shellNavKey = GlobalKey<NavigatorState>();
@@ -100,7 +100,7 @@ GoRouter router(AuthenticationBloc authBloc) {
               },
             ),
             GoRoute(
-              path: '/addImage',
+              path: '/image-details',
               builder: (context, state) {
                 return BlocProvider<UploadPictureBloc>(
                     create: (context) => UploadPictureBloc(FirebaseProduct()),

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, library_private_types_in_public_api, use_super_parameters
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -311,17 +313,9 @@ class _EditProductPageState extends State<EditProductPage> {
                     const SizedBox(height: 10),
                     imageNames.isEmpty
                         ? const Text('No images found.')
-                        : GridView.builder(
+                        : ListView.builder(
                             shrinkWrap: true,
                             itemCount: imageNames.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing:
-                                  5, // Reduce spacing between columns
-                              mainAxisSpacing: 5, // Reduce spacing between rows
-                              childAspectRatio: 3, // Make the grid tiles square
-                            ),
                             itemBuilder: (context, index) {
                               return FutureBuilder<String>(
                                 future: _getImageUrl(imageNames[index]),
@@ -340,34 +334,45 @@ class _EditProductPageState extends State<EditProductPage> {
                                           selectedImageName = imageNames[index];
                                         });
                                       },
-                                      child: GridTile(
-                                        child: Column(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 5),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors
+                                              .white, // Set background color to white
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                  0.1), // Shadow color
+                                              spreadRadius: 2, // Spread radius
+                                              blurRadius: 5, // Blur radius
+                                              offset: const Offset(0,
+                                                  3), // Offset in x and y direction
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
                                           children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              child: Image.network(
+                                                snapshot.data!,
+                                                width: 50,
+                                                height: 50,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
                                             Expanded(
-                                              child: Container(
-                                                padding: const EdgeInsets.all(
-                                                    2.0), // Reduce padding around the image
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color: Colors.grey,
-                                                      width: 1.0), // Add border
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0), // Add border radius
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.0), // Clip image to border radius
-                                                  child: Image.network(
-                                                    snapshot.data!,
-                                                    fit: BoxFit.cover,
-                                                    width:
-                                                        400, // Reduce image width
-                                                    height:
-                                                        200, // Reduce image height
-                                                  ),
-                                                ),
+                                              child: Text(
+                                                imageNames[index],
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight
+                                                        .bold), // Make text bold
                                               ),
                                             ),
                                             if (selectedImageName ==

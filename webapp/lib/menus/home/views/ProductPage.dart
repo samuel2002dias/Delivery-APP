@@ -335,7 +335,7 @@ class ProductPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go('/addImage');
+          context.go('/image-details');
         },
         child: const Icon(CupertinoIcons.photo_camera, color: Colors.white),
         backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
