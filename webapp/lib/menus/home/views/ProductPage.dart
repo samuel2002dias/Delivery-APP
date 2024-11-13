@@ -72,9 +72,6 @@ class ProductPage extends StatelessWidget {
     final isLargeScreen = screenSize.width > 600;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Page'),
-      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchProducts(),
         builder: (context, snapshot) {

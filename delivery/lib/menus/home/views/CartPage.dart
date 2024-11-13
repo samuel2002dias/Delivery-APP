@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, library_private_types_in_public_api
+
 import 'package:delivery/menus/home/views/BuyNowPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,7 +27,7 @@ class _CartPageState extends State<CartPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('No user is currently signed in.');
+        throw Exception('');
       }
 
       final userId = user.uid;
@@ -93,6 +95,28 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
+  Future<void> _removeAllProductsFromCart() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('No user is currently signed in.');
+      }
+
+      final userId = user.uid;
+      final cartRef = FirebaseFirestore.instance.collection('cart').doc(userId);
+
+      await cartRef.update({'products': []});
+      print('All products removed successfully.');
+
+      setState(() {
+        _cartProductsFuture = _fetchCartProducts();
+      });
+    } catch (e) {
+      print('Error removing all products from cart: $e');
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,159 +134,175 @@ class _CartPageState extends State<CartPage> {
           ],
         ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Cart',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
+          Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Cart',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: _cartProductsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No products in cart.'));
-                }
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _cartProductsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No products in cart.'));
+                    }
 
-                final products = snapshot.data!;
-                return SingleChildScrollView(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      final productData = products[index];
-                      final productDetails =
-                          productData['data'] as Map<String, dynamic>;
-                      final productId = productData['id'];
-                      final quantity = productData['quantity'] ?? 1;
-                      print('Rendering product: $productData');
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16.0),
-                        child: ListTile(
-                          leading: ClipOval(
-                            child: Image.network(
-                              productDetails['image'] ?? 'images/cheese.png',
-                              height: 50.0,
-                              width: 50.0,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          title: Text(
-                            productDetails['name'] ?? 'Product Name',
-                            style: const TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                productDetails['description'] ?? 'Description',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey[700],
+                    final products = snapshot.data!;
+                    return SingleChildScrollView(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final productData = products[index];
+                          final productDetails =
+                              productData['data'] as Map<String, dynamic>;
+                          final productId = productData['id'];
+                          final quantity = productData['quantity'] ?? 1;
+                          print('Rendering product: $productData');
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 16.0),
+                            child: ListTile(
+                              leading: ClipOval(
+                                child: Image.network(
+                                  productDetails['image'] ??
+                                      'images/cheese.png',
+                                  height: 50.0,
+                                  width: 50.0,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              const SizedBox(height: 4.0),
-                              Text(
-                                'Quantity: $quantity',
-                                style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.remove_circle_outline),
-                                onPressed: () async {
-                                  await _removeProductFromCart(
-                                      productId, quantity);
-                                },
-                              ),
-                            ],
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '\$${productDetails['price'] ?? '0.00'}',
+                              title: Text(
+                                productDetails['name'] ?? 'Product Name',
                                 style: const TextStyle(
-                                  fontSize: 16.0,
+                                  fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(252, 185, 19, 1),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: _cartProductsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No products in cart.'));
-              }
-
-              final products = snapshot.data!;
-              return SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 50,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) => BuyNowPage(
-                          products: products,
-                          productId: '',
-                        ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    productDetails['description'] ??
+                                        'Description',
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    'Quantity: $quantity',
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon:
+                                        const Icon(Icons.remove_circle_outline),
+                                    onPressed: () async {
+                                      await _removeProductFromCart(
+                                          productId, quantity);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '\$${productDetails['price'] ?? '0.00'}',
+                                    style: const TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromRGBO(252, 185, 19, 1),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
-                  style: TextButton.styleFrom(
-                    elevation: 3.0,
-                    backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Buy Now",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
-              );
-            },
+              ),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _cartProductsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text(''));
+                  }
+
+                  final products = snapshot.data!;
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) => BuyNowPage(
+                              products: products,
+                              productId: '',
+                            ),
+                          ),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        elevation: 3.0,
+                        backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Buy Now",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 60,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: _removeAllProductsFromCart,
+              backgroundColor: const Color.fromRGBO(252, 185, 19, 1),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
           ),
         ],
       ),

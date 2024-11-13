@@ -73,7 +73,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
       0.0,
       (sum, product) {
         final quantity = product['quantity'] ?? 1;
-        final price = product['data']['price'] as double;
+        final price = (product['data']['price'] as num).toDouble();
         return sum + (price * quantity);
       },
     );
@@ -84,7 +84,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
     final productsToShow = widget.singleProduct != null
         ? [widget.singleProduct!]
         : widget.products;
-    final totalPrice = _calculateTotalPrice();
+    final totalPrice = _calculateTotalPrice().toStringAsFixed(2);
 
     return Scaffold(
       appBar: AppBar(
@@ -337,13 +337,13 @@ class _BuyNowPageState extends State<BuyNowPage> {
                               selectedLocation: _selectedLocation,
                               showDialog: _showDialog,
                               paymentMethod: 'Payment on Delivery',
-                              price: totalPrice,
+                              price: double.parse(totalPrice),
                             );
                           } else {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => CreditCardPayment(
-                                  totalAmount: totalPrice,
+                                  totalAmount: double.parse(totalPrice),
                                   productIds: productIds,
                                   productDataList: productDataList,
                                   productQuantities: productQuantities,
@@ -353,7 +353,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
                                   addressController: _addressController,
                                   selectedLocation: _selectedLocation,
                                   showDialog: _showDialog,
-                                  totalPrice: totalPrice,
+                                  totalPrice: double.parse(totalPrice),
                                 ),
                               ),
                             );

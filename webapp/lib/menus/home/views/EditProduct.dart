@@ -141,10 +141,10 @@ class _EditProductPageState extends State<EditProductPage> {
           'description': descriptionController.text,
           'price': double.tryParse(priceController.text) ?? 0.0, // Update price
           'ingredients': {
-            'ingredient1': ingredient1Controller.text,
-            'ingredient2': ingredient2Controller.text,
-            'ingredient3': ingredient3Controller.text,
-            'ingredient4': ingredient4Controller.text,
+            'ingredientName1': ingredient1Controller.text,
+            'ingredientName2': ingredient2Controller.text,
+            'ingredientName3': ingredient3Controller.text,
+            'ingredientName4': ingredient4Controller.text,
           },
           'image': imageUrl,
         });

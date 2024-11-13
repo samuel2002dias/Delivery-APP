@@ -221,22 +221,22 @@ class DetailsPage extends StatelessWidget {
                 Row(
                   children: [
                     MyWidget(
-                      name: ingredients['ingredient1'] ?? 'Ingredient 1',
+                      name: ingredients['ingredientName1'] ?? 'Ingredient 1',
                       icon: FontAwesomeIcons.carrot,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredient2'] ?? 'Ingredient 2',
+                      name: ingredients['ingredientName2'] ?? 'Ingredient 2',
                       icon: FontAwesomeIcons.carrot,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredient3'] ?? 'Ingredient 3',
+                      name: ingredients['ingredientName3'] ?? 'Ingredient 3',
                       icon: FontAwesomeIcons.drumstickBite,
                     ),
                     const SizedBox(width: 8),
                     MyWidget(
-                      name: ingredients['ingredient4'] ?? 'Ingredient 4',
+                      name: ingredients['ingredientName4'] ?? 'Ingredient 4',
                       icon: FontAwesomeIcons.cheese,
                     ),
                     const SizedBox(width: 8),

@@ -87,6 +87,14 @@ class RequestPage extends StatelessWidget {
             return const Center(child: Text('No requests available'));
           }
           final requests = snapshot.data!.docs;
+
+          // Sort requests by timestamp in descending order
+          requests.sort((a, b) {
+            Timestamp timestampA = a['timestamp'];
+            Timestamp timestampB = b['timestamp'];
+            return timestampB.compareTo(timestampA);
+          });
+
           return ListView.builder(
             itemCount: requests.length,
             itemBuilder: (context, index) {
