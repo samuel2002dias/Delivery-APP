@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:delivery/product/src/firebase_product.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,54 +27,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> addToCart(
-      String productId, Map<String, dynamic> productData, int quantity) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final cartRef =
-          FirebaseFirestore.instance.collection('cart').doc(user.uid);
-      final cartSnapshot = await cartRef.get();
-
-      if (cartSnapshot.exists) {
-        // If the cart already exists, update it
-        final cartData = cartSnapshot.data() as Map<String, dynamic>;
-        final products = List<Map<String, dynamic>>.from(cartData['products']);
-        final productIndex =
-            products.indexWhere((product) => product['id'] == productId);
-
-        if (productIndex >= 0) {
-          // If the product already exists in the cart, increment its quantity
-          products[productIndex]['quantity'] += quantity;
-        } else {
-          // If the product does not exist in the cart, add it with the specified quantity
-          products.add({
-            'id': productId,
-            'data': productData,
-            'quantity': quantity,
-          });
-        }
-
-        await cartRef.update({'products': products});
-      } else {
-        // If the cart does not exist, create it with the product
-        await cartRef.set({
-          'products': [
-            {
-              'id': productId,
-              'data': productData,
-              'quantity': quantity,
-            }
-          ]
-        });
-      }
-    } else {
-      print('User not signed in');
-    }
-  }
-
   void showAddToCartDialog(BuildContext context, String productId,
       Map<String, dynamic> productData) {
     int quantity = 1;
+    final FirebaseProduct _firebaseProduct = FirebaseProduct();
 
     showDialog(
       context: context,
@@ -121,7 +78,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await addToCart(productId, productData, quantity);
+                    await _firebaseProduct.addToCartDirect(
+                        productId, productData, quantity);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Add to Cart'),

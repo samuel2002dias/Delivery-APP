@@ -107,4 +107,5 @@ class FirebaseUserRepo implements UserRepository {
       }
     });
   }
+
 }

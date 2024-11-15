@@ -5,28 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:delivery/product/src/firebase_product.dart';
 
 class RequestList extends StatelessWidget {
   const RequestList({Key? key}) : super(key: key);
 
-  Future<Map<String, dynamic>?> _fetchProductData(String productId) async {
-    try {
-      final productDoc = await FirebaseFirestore.instance
-          .collection('product')
-          .doc(productId)
-          .get();
-      if (productDoc.exists) {
-        return productDoc.data() as Map<String, dynamic>?;
-      }
-    } catch (e) {
-      print('Error fetching product data: $e');
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final FirebaseProduct _firebaseProduct = FirebaseProduct();
 
     if (user == null) {
       return const Center(child: Text('User not signed in'));
@@ -109,7 +96,8 @@ class RequestList extends StatelessWidget {
                         children: [
                           productId != null
                               ? FutureBuilder<Map<String, dynamic>?>(
-                                  future: _fetchProductData(productId),
+                                  future: _firebaseProduct
+                                      .fetchProductData(productId),
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
@@ -155,7 +143,8 @@ class RequestList extends StatelessWidget {
                                 ),
                                 if (productId != null)
                                   FutureBuilder<Map<String, dynamic>?>(
-                                    future: _fetchProductData(productId),
+                                    future: _firebaseProduct
+                                        .fetchProductData(productId),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {

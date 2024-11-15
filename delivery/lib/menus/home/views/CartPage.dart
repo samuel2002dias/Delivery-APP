@@ -4,53 +4,29 @@ import 'package:delivery/menus/home/views/BuyNowPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:delivery/product/src/firebase_product.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key, required this.userId}) : super(key: key);
 
   final String userId;
+  
 
   @override
   _CartPageState createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
+  final FirebaseProduct _firebaseProduct = FirebaseProduct();
   late Future<List<Map<String, dynamic>>> _cartProductsFuture;
 
   @override
   void initState() {
     super.initState();
-    _cartProductsFuture = _fetchCartProducts();
+   _cartProductsFuture = _firebaseProduct.fetchCartProducts();
   }
 
-  Future<List<Map<String, dynamic>>> _fetchCartProducts() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception('');
-      }
 
-      final userId = user.uid;
-      print('Fetching products for user: $userId');
-      final querySnapshot =
-          await FirebaseFirestore.instance.collection('cart').doc(userId).get();
-
-      if (!querySnapshot.exists) {
-        print('No products found in the cart collection for user $userId.');
-        return [];
-      } else {
-        print('Products fetched successfully for user $userId.');
-      }
-
-      final cartData = querySnapshot.data() as Map<String, dynamic>;
-      final products = List<Map<String, dynamic>>.from(cartData['products']);
-
-      return products;
-    } catch (e) {
-      print('Error fetching cart products: $e');
-      rethrow;
-    }
-  }
 
   Future<void> _removeProductFromCart(String productId, int quantity) async {
     try {
@@ -87,7 +63,7 @@ class _CartPageState extends State<CartPage> {
 
       // Update the state to reflect the changes
       setState(() {
-        _cartProductsFuture = _fetchCartProducts();
+        _cartProductsFuture = _firebaseProduct.fetchCartProducts();
       });
     } catch (e) {
       print('Error removing product from cart: $e');
@@ -109,7 +85,7 @@ class _CartPageState extends State<CartPage> {
       print('All products removed successfully.');
 
       setState(() {
-        _cartProductsFuture = _fetchCartProducts();
+        _cartProductsFuture = _firebaseProduct.fetchCartProducts();
       });
     } catch (e) {
       print('Error removing all products from cart: $e');

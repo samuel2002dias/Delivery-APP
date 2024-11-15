@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, unused_local_variable, unnecessary_cast
+// ignore_for_file: file_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, unused_local_variable, unnecessary_cast, no_leading_underscores_for_local_identifiers
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/IngredientsWidget.dart';
@@ -7,100 +7,17 @@ import 'package:delivery/menus/home/views/HomePage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:delivery/product/src/firebase_product.dart';
+import '../../../firebase_Feedbacks.dart';
 
 class DetailsPage extends StatelessWidget {
   final String productId;
 
   const DetailsPage({super.key, required this.productId});
 
-  Future<DocumentSnapshot> getProductDetails() async {
-    return await FirebaseFirestore.instance
-        .collection('product')
-        .doc(productId)
-        .get();
-  }
-
-  Future<void> addToCart(BuildContext context, String productId,
-      Map<String, dynamic> productData) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final cartRef =
-          FirebaseFirestore.instance.collection('cart').doc(user.uid);
-      final cartSnapshot = await cartRef.get();
-
-      if (cartSnapshot.exists) {
-        // If the cart already exists, update it
-        final cartData = cartSnapshot.data() as Map<String, dynamic>;
-        final products = cartData['products'] as List<dynamic>;
-        final productIndex =
-            products.indexWhere((product) => product['id'] == productId);
-
-        if (productIndex >= 0) {
-          // If the product already exists in the cart, increment its quantity
-          products[productIndex]['quantity'] += 1;
-        } else {
-          // If the product does not exist in the cart, add it with quantity 1
-          products.add({
-            'id': productId,
-            'data': productData,
-            'quantity': 1,
-          });
-        }
-
-        await cartRef.update({'products': products});
-      } else {
-        // If the cart does not exist, create it with the product
-        await cartRef.set({
-          'products': [
-            {
-              'id': productId,
-              'data': productData,
-              'quantity': 1,
-            }
-          ]
-        });
-      }
-
-      // Navigate back to the home page
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => const HomePage(),
-        ),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      print('User not signed in');
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> getFeedbacks() async {
-    final feedbacksSnapshot = await FirebaseFirestore.instance
-        .collection('feedbacks')
-        .where('productId', isEqualTo: productId)
-        .get();
-
-    final feedbacks = feedbacksSnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
-
-    for (var feedback in feedbacks) {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(feedback['userId'])
-          .get();
-      if (userDoc.exists) {
-        feedback['name'] = userDoc.data()?['name'] ?? 'Unknown User';
-      } else {
-        feedback['name'] = 'Unknown User';
-      }
-    }
-
-    return feedbacks;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final FirebaseProduct _firebaseProduct = FirebaseProduct();
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -118,7 +35,7 @@ class DetailsPage extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: getProductDetails(),
+        future: _firebaseProduct.getProductDetails(productId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -245,7 +162,7 @@ class DetailsPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 Expanded(
                   child: FutureBuilder<List<Map<String, dynamic>>>(
-                    future: getFeedbacks(),
+                    future: getFeedbacks(productId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -340,7 +257,8 @@ class DetailsPage extends StatelessWidget {
                   height: 50,
                   child: TextButton(
                     onPressed: () async {
-                      await addToCart(context, productId, productData);
+                      await _firebaseProduct.addToCart(
+                          context, productId, productData);
                       print('Add to Cart button pressed');
                     },
                     style: TextButton.styleFrom(
