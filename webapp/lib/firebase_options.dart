@@ -41,7 +41,7 @@ class DefaultFirebaseOptions {
         );
     }
   }
-
+// Dados obtidos do Firebase Console
   static const FirebaseOptions webProd = FirebaseOptions(
       apiKey: "AIzaSyDi39qKrmabGjH5ynyzP24UJAjAAoHWN0E",
       authDomain: "delivery-68030.firebaseapp.com",
