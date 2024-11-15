@@ -39,6 +39,8 @@ class RequestList extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('requests')
             .where('userId', isEqualTo: user.uid)
+            .orderBy('timestamp',
+                descending: true) // Order by timestamp in descending order
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
