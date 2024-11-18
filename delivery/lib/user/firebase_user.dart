@@ -94,7 +94,7 @@ class FirebaseUserRepo implements UserRepository {
   }
 
   /// A stream of `MyUser` objects that represents the current authenticated user.
-  /// Listen to authentication state changes.
+  /// Listen to authentication BLoC state changes.
   /// If there is no authenticated user, yield an empty `MyUser` object and yield a `MyUser` object created from the fetched data.
   @override
   Stream<MyUser?> get user {

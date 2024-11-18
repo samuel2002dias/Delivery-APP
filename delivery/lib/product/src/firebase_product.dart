@@ -50,6 +50,7 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
+ // Adicionar ao carrinho
   Future<void> addToCart(BuildContext context, String productId,
       Map<String, dynamic> productData) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -103,6 +104,7 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
+ // Adicionar diretamente sem ter que aceder à pagina detalhada
   Future<void> addToCartDirect(
       String productId, Map<String, dynamic> productData, int quantity) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -148,6 +150,7 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
+//  Página de detalhes do produto
   Future<DocumentSnapshot> getProductDetails(String productId) async {
     return await FirebaseFirestore.instance
         .collection('product')
@@ -155,6 +158,8 @@ class FirebaseProduct implements ProductClass {
         .get();
   }
 
+
+// Lista de requests
   Future<Map<String, dynamic>?> fetchProductData(String productId) async {
     try {
       final productDoc = await FirebaseFirestore.instance
