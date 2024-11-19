@@ -31,7 +31,6 @@ class _HomePageState extends State<HomePage> {
       Map<String, dynamic> productData) {
     int quantity = 1;
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -78,9 +77,17 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await _firebaseProduct.addToCartDirect(
-                        productId, productData, quantity);
+                    await _firebaseProduct.addToCart(productId, productData);
                     Navigator.of(context).pop();
+                    if (Navigator.canPop(context)) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const HomePage(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    }
                   },
                   child: const Text('Add to Cart'),
                 ),
@@ -94,7 +101,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHomePage(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-
+    final FirebaseProduct _firebaseProduct = FirebaseProduct();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize:
@@ -130,9 +137,8 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      const CartPage(
-                                    userId: '',
+                                  builder: (BuildContext context) => CartPage(
+                                    userId: user.uid,
                                   ),
                                 ),
                               );

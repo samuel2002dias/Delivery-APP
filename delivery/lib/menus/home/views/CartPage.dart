@@ -80,6 +80,7 @@ class _CartPageState extends State<CartPage> {
 
       final userId = user.uid;
       final cartRef = FirebaseFirestore.instance.collection('cart').doc(userId);
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({'hasCart': false});
 
       await cartRef.update({'products': []});
       print('All products removed successfully.');
@@ -245,6 +246,7 @@ class _CartPageState extends State<CartPage> {
                             builder: (BuildContext context) => BuyNowPage(
                               products: products,
                               productId: '',
+
                             ),
                           ),
                         );

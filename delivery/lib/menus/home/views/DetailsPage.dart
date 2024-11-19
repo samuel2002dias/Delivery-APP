@@ -257,8 +257,7 @@ class DetailsPage extends StatelessWidget {
                   height: 50,
                   child: TextButton(
                     onPressed: () async {
-                      await _firebaseProduct.addToCart(
-                          context, productId, productData);
+                      await _firebaseProduct.addToCart(productId, productData);
                       print('Add to Cart button pressed');
                     },
                     style: TextButton.styleFrom(

@@ -21,11 +21,12 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
+  //Lista de produtos no carrinho
   Future<List<Map<String, dynamic>>> fetchCartProducts() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        throw Exception('');
+        throw Exception('No user logged in');
       }
 
       final userId = user.uid;
@@ -50,11 +51,13 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
- // Adicionar ao carrinho
-  Future<void> addToCart(BuildContext context, String productId,
-      Map<String, dynamic> productData) async {
+  // Adicionar ao carrinho
+  Future<void> addToCart(
+      String productId, Map<String, dynamic> productData) async {
     final user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
+      final userId = user.uid;
       final cartRef =
           FirebaseFirestore.instance.collection('cart').doc(user.uid);
       final cartSnapshot = await cartRef.get();
@@ -69,6 +72,7 @@ class FirebaseProduct implements ProductClass {
         if (productIndex >= 0) {
           // If the product already exists in the cart, increment its quantity
           products[productIndex]['quantity'] += 1;
+          FirebaseFirestore.instance.doc('users').update({'hasCart': true});
         } else {
           // If the product does not exist in the cart, add it with quantity 1
           products.add({
@@ -76,6 +80,10 @@ class FirebaseProduct implements ProductClass {
             'data': productData,
             'quantity': 1,
           });
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .update({'hasCart': true});
         }
         await cartRef.update({'products': products});
       } else {
@@ -86,61 +94,6 @@ class FirebaseProduct implements ProductClass {
               'id': productId,
               'data': productData,
               'quantity': 1,
-            }
-          ]
-        });
-      }
-
-      // Navigate back to the home page
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => const HomePage(),
-        ),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      print('User not signed in');
-    }
-  }
-
- // Adicionar diretamente sem ter que aceder à pagina detalhada
-  Future<void> addToCartDirect(
-      String productId, Map<String, dynamic> productData, int quantity) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final cartRef =
-          FirebaseFirestore.instance.collection('cart').doc(user.uid);
-      final cartSnapshot = await cartRef.get();
-
-      if (cartSnapshot.exists) {
-        // If the cart already exists, update it
-        final cartData = cartSnapshot.data() as Map<String, dynamic>;
-        final products = List<Map<String, dynamic>>.from(cartData['products']);
-        final productIndex =
-            products.indexWhere((product) => product['id'] == productId);
-
-        if (productIndex >= 0) {
-          // If the product already exists in the cart, increment its quantity
-          products[productIndex]['quantity'] += quantity;
-        } else {
-          // If the product does not exist in the cart, add it with the specified quantity
-          products.add({
-            'id': productId,
-            'data': productData,
-            'quantity': quantity,
-          });
-        }
-
-        await cartRef.update({'products': products});
-      } else {
-        // If the cart does not exist, create it with the product
-        await cartRef.set({
-          'products': [
-            {
-              'id': productId,
-              'data': productData,
-              'quantity': quantity,
             }
           ]
         });
@@ -157,7 +110,6 @@ class FirebaseProduct implements ProductClass {
         .doc(productId)
         .get();
   }
-
 
 // Lista de requests
   Future<Map<String, dynamic>?> fetchProductData(String productId) async {
