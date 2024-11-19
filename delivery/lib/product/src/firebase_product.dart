@@ -126,4 +126,44 @@ class FirebaseProduct implements ProductClass {
     }
     return null;
   }
+
+   Future<void> removeProductFromCart(String productId, int quantity) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('No user is currently signed in.');
+      }
+
+      final userId = user.uid;
+      final cartRef = FirebaseFirestore.instance.collection('cart').doc(userId);
+
+      final cartSnapshot = await cartRef.get();
+      if (!cartSnapshot.exists) {
+        throw Exception('Cart does not exist for user $userId.');
+      }
+
+      final cartData = cartSnapshot.data() as Map<String, dynamic>;
+      final products = List<Map<String, dynamic>>.from(cartData['products']);
+
+      final productIndex =
+          products.indexWhere((product) => product['id'] == productId);
+      if (productIndex == -1) {
+        throw Exception('Product not found in cart.');
+      }
+
+      if (quantity > 1) {
+        products[productIndex]['quantity'] = quantity - 1;
+      } else {
+        products.removeAt(productIndex);
+      }
+
+      await cartRef.update({'products': products});
+      print('Product removed successfully.');
+    } catch (e) {
+      print('Error removing product from cart: $e');
+      rethrow;
+    }
+  }
+
+  
 }

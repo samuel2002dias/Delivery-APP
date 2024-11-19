@@ -5,6 +5,8 @@ import 'package:delivery/menus/home/views/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:delivery/user/src/models/user.dart';
+import 'package:delivery/user/firebase_user.dart'; // Import FirebaseUserRepo
 
 class FeedbackPage extends StatefulWidget {
   final String productId;
@@ -20,6 +22,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _feedbackController = TextEditingController();
+  final FirebaseUserRepo _firebaseUserRepo =
+      FirebaseUserRepo(); // Initialize FirebaseUserRepo
 
   @override
   void initState() {
@@ -30,19 +34,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   Future<void> _fetchUserDetails() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (userDoc.exists) {
-        setState(() {
-          _emailController.text = user.email ?? '';
-          _nameController.text = userDoc.data()?['name'] ?? '';
-        });
-      }
+    try {
+      final userDetails = await _firebaseUserRepo.fetchUserDetails();
+      setState(() {
+        _emailController.text = userDetails['email'] ?? '';
+        _nameController.text = userDetails['name'] ?? '';
+      });
+    } catch (e) {
+      print('Error fetching user details: $e');
     }
   }
 

@@ -48,5 +48,51 @@ class FirebaseProduct implements ProductClass {
     }
   }
 
+  Future<void> updateProduct(String productID, String name, String description,
+      double price, Map<String, String> ingredients, String? imageUrl) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('product')
+          .doc(productID)
+          .update({
+        'name': name,
+        'description': description,
+        'price': price,
+        'ingredients': ingredients,
+        'image': imageUrl,
+      });
+    } catch (e) {
+      log('Error updating product: $e');
+      rethrow;
+    }
+  }
+
+  Future<String> getImageUrl(String imageName) async {
+    return await FirebaseStorage.instance
+        .refFromURL('gs://delivery-68030.appspot.com/$imageName')
+        .getDownloadURL();
+  }
+
+  Future<List<String>> fetchImagesFromStorage() async {
+    try {
+      final ListResult result = await FirebaseStorage.instance
+          .refFromURL('gs://delivery-68030.appspot.com')
+          .listAll();
+
+      List<String> names = [];
+      for (var ref in result.items) {
+        final FullMetadata metadata = await ref.getMetadata();
+        if (metadata.contentType == 'image/jpeg' ||
+            metadata.contentType == 'image/png') {
+          names.add(ref.name);
+        }
+      }
+      return names;
+    } catch (e) {
+      log('Error fetching images from storage: $e');
+      rethrow;
+    }
+  }
+
 
 }

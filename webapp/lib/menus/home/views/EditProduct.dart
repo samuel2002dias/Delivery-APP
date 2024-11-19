@@ -9,6 +9,7 @@ import 'package:webapp/TextField.dart';
 import 'package:webapp/product/src/models/ingredients.dart';
 import 'package:webapp/product/src/models/product.dart';
 import 'package:webapp/widgets/ingredientsAdd.dart';
+import 'package:webapp/product/src/firebase_product.dart';
 
 class EditProductPage extends StatefulWidget {
   final String productID;
@@ -32,6 +33,7 @@ class _EditProductPageState extends State<EditProductPage> {
   late Product product;
   List<String> imageNames = [];
   String? selectedImageName;
+  final FirebaseProduct firebaseProduct = FirebaseProduct();
 
   @override
   void initState() {
@@ -50,38 +52,42 @@ class _EditProductPageState extends State<EditProductPage> {
           .doc(widget.productID)
           .get();
 
-      if (doc.exists) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        print('Product data: $data');
-        setState(() {
-          nameController.text = data['name'] ?? '';
-          descriptionController.text = data['description'] ?? '';
-          priceController.text =
-              data['price']?.toString() ?? ''; // Populate price
-          Map<String, dynamic> ingredients = data['ingredients'] ?? {};
-          ingredient1Controller.text = ingredients['ingredientName1'] ?? '';
-          ingredient2Controller.text = ingredients['ingredientName2'] ?? '';
-          ingredient3Controller.text = ingredients['ingredientName3'] ?? '';
-          ingredient4Controller.text = ingredients['ingredientName4'] ?? '';
-          product = Product(
-            productID: widget.productID,
-            name: data['name'] ?? '',
-            description: data['description'] ?? '',
-            image: data['image'] ?? '',
-            price: data['price'] ?? 0.0,
-            ingredients: Ingredients(
-              ingredientID: data['ingredientID'] ?? '',
-              ingredientName1: ingredients['ingredientName1'] ?? '',
-              ingredientName2: ingredients['ingredientName2'] ?? '',
-              ingredientName3: ingredients['ingredientName3'] ?? '',
-              ingredientName4: ingredients['ingredientName4'] ?? '',
-            ),
-          );
-          selectedImageName = data['image'] ?? '';
-        });
-      } else {
+      if (!doc.exists) {
         print('Document does not exist');
+        return;
       }
+
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      print('Product data: $data');
+
+      setState(() {
+        nameController.text = data['name'] ?? '';
+        descriptionController.text = data['description'] ?? '';
+        priceController.text = data['price']?.toString() ?? '';
+
+        Map<String, dynamic> ingredients = data['ingredients'] ?? {};
+        ingredient1Controller.text = ingredients['ingredientName1'] ?? '';
+        ingredient2Controller.text = ingredients['ingredientName2'] ?? '';
+        ingredient3Controller.text = ingredients['ingredientName3'] ?? '';
+        ingredient4Controller.text = ingredients['ingredientName4'] ?? '';
+
+        product = Product(
+          productID: widget.productID,
+          name: data['name'] ?? '',
+          description: data['description'] ?? '',
+          image: data['image'] ?? '',
+          price: data['price'] ?? 0.0,
+          ingredients: Ingredients(
+            ingredientID: data['ingredientID'] ?? '',
+            ingredientName1: ingredients['ingredientName1'] ?? '',
+            ingredientName2: ingredients['ingredientName2'] ?? '',
+            ingredientName3: ingredients['ingredientName3'] ?? '',
+            ingredientName4: ingredients['ingredientName4'] ?? '',
+          ),
+        );
+
+        selectedImageName = data['image'] ?? '';
+      });
     } catch (e) {
       print('Error fetching product details: $e');
     }
@@ -90,39 +96,14 @@ class _EditProductPageState extends State<EditProductPage> {
   Future<void> _fetchImagesFromStorage() async {
     try {
       print('Fetching images from Firebase Storage');
-      final ListResult result = await FirebaseStorage.instance
-          .refFromURL('gs://delivery-68030.appspot.com')
-          .listAll();
-      print('Found ${result.items.length} items in storage');
-
-      List<String> names = [];
-      for (var ref in result.items) {
-        print('Fetching metadata for item: ${ref.fullPath}');
-        final FullMetadata metadata = await ref.getMetadata();
-        if (metadata.contentType == 'image/jpeg' ||
-            metadata.contentType == 'image/png') {
-          print('Fetched image name: ${ref.name}');
-          names.add(ref.name);
-        }
-      }
-
+      List<String> names = await firebaseProduct.fetchImagesFromStorage();
       setState(() {
         imageNames = names;
       });
       print('Fetched ${names.length} images from Firebase Storage');
     } catch (e) {
       print('Error fetching images from storage: $e');
-      if (e is FirebaseException) {
-        print('FirebaseException code: ${e.code}');
-        print('FirebaseException message: ${e.message}');
-      }
     }
-  }
-
-  Future<String> _getImageUrl(String imageName) async {
-    return await FirebaseStorage.instance
-        .refFromURL('gs://delivery-68030.appspot.com/$imageName')
-        .getDownloadURL();
   }
 
   Future<void> _updateProduct() async {
@@ -130,24 +111,22 @@ class _EditProductPageState extends State<EditProductPage> {
       try {
         String? imageUrl;
         if (selectedImageName != null) {
-          imageUrl = await _getImageUrl(selectedImageName!);
+          imageUrl = await firebaseProduct.getImageUrl(selectedImageName!);
         }
 
-        await FirebaseFirestore.instance
-            .collection('product')
-            .doc(widget.productID)
-            .update({
-          'name': nameController.text,
-          'description': descriptionController.text,
-          'price': double.tryParse(priceController.text) ?? 0.0, // Update price
-          'ingredients': {
+        await firebaseProduct.updateProduct(
+          widget.productID,
+          nameController.text,
+          descriptionController.text,
+          double.tryParse(priceController.text) ?? 0.0,
+          {
             'ingredientName1': ingredient1Controller.text,
             'ingredientName2': ingredient2Controller.text,
             'ingredientName3': ingredient3Controller.text,
             'ingredientName4': ingredient4Controller.text,
           },
-          'image': imageUrl,
-        });
+          imageUrl,
+        );
       } catch (e) {
         print('Error updating product: $e');
       }
@@ -318,7 +297,8 @@ class _EditProductPageState extends State<EditProductPage> {
                             itemCount: imageNames.length,
                             itemBuilder: (context, index) {
                               return FutureBuilder<String>(
-                                future: _getImageUrl(imageNames[index]),
+                                future: firebaseProduct
+                                    .getImageUrl(imageNames[index]),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {

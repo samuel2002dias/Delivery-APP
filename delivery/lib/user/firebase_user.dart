@@ -108,4 +108,23 @@ class FirebaseUserRepo implements UserRepository {
     });
   }
 
+    Future<Map<String, String>> fetchUserDetails() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        return {
+          'email': user.email ?? '',
+          'name': userDoc.data()?['name'] ?? '',
+        };
+      }
+    }
+    return {};
+  }
 }
+
+
