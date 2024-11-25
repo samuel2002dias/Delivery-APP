@@ -4,10 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/IngredientsWidget.dart';
 import 'package:delivery/menus/home/views/FeedbackPage.dart';
 import 'package:delivery/menus/home/views/HomePage.dart';
+import 'package:delivery/translation_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:delivery/product/src/firebase_product.dart';
+import 'package:provider/provider.dart';
 import '../../../firebase_Feedbacks.dart';
 
 class DetailsPage extends StatelessWidget {
@@ -18,6 +20,7 @@ class DetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
+    final translationProvider = Provider.of<TranslationProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -41,10 +44,14 @@ class DetailsPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong!'));
+            return Center(
+                child: Text(
+                    translationProvider.translate('something_went_wrong')));
           }
           if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text('Product not found'));
+            return Center(
+                child:
+                    Text(translationProvider.translate('product_not_found')));
           }
 
           final productData = snapshot.data!.data() as Map<String, dynamic>;
@@ -168,11 +175,14 @@ class DetailsPage extends StatelessWidget {
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
-                        return const Center(
-                            child: Text('Error loading feedbacks'));
+                        return Center(
+                            child: Text(translationProvider
+                                .translate('error_loading_feedbacks')));
                       }
                       if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No feedbacks found'));
+                        return Center(
+                            child: Text(translationProvider
+                                .translate('no_feedbacks_found')));
                       }
 
                       final feedbacks = snapshot.data!;
@@ -203,7 +213,7 @@ class DetailsPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8.0),
                                   Text(
-                                    'From ${feedback['name']}',
+                                    '${translationProvider.translate('from')} ${feedback['name']}',
                                     style: const TextStyle(
                                       fontSize: 14.0,
                                       color: Colors.grey,
@@ -241,9 +251,9 @@ class DetailsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      "Feedback",
-                      style: TextStyle(
+                    child: Text(
+                      translationProvider.translate('feedback'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -259,6 +269,13 @@ class DetailsPage extends StatelessWidget {
                     onPressed: () async {
                       await _firebaseProduct.addToCart(productId, productData);
                       print('Add to Cart button pressed');
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const HomePage(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                     style: TextButton.styleFrom(
                       elevation: 3.0,
@@ -268,9 +285,9 @@ class DetailsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      "Add to Cart",
-                      style: TextStyle(
+                    child: Text(
+                      translationProvider.translate('add_to_cart'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,

@@ -1,0 +1,18 @@
+<resources>
+    <string name="title">Título</string>
+    <string name="welcome_message">Bem-vindo!</string>
+    <string name="add_to_cart">Adicionar ao Carrinho</string>
+    <string name="enter_quantity">Digite a quantidade:</string>
+    <string name="cancel">Cancelar</string>
+    <string name="home">Início</string>
+    <string name="requests">Pedidos</string>
+    <string name="something_went_wrong">Ups! Algo deu errado!</string>
+    <string name="no_products_available">Nenhum produto disponível</string>
+    <string name="switch_to_english">Mudar para Inglês</string>
+    <string name="switch_to_portuguese">Mudar para Português</string>
+    <string name="product_not_found">Produto não encontrado</string>
+    <string name="feedback">Feedback</string>
+    <string name="no_feedbacks_found">Nenhum feedback encontrado</string>
+    <string name="error_loading_feedbacks">Erro ao carregar feedbacks</string>
+    <string name="from">De</string>
+</resources>

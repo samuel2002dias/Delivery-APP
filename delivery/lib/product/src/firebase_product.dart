@@ -72,7 +72,6 @@ class FirebaseProduct implements ProductClass {
         if (productIndex >= 0) {
           // If the product already exists in the cart, increment its quantity
           products[productIndex]['quantity'] += 1;
-          FirebaseFirestore.instance.doc('users').update({'hasCart': true});
         } else {
           // If the product does not exist in the cart, add it with quantity 1
           products.add({
@@ -127,7 +126,7 @@ class FirebaseProduct implements ProductClass {
     return null;
   }
 
-   Future<void> removeProductFromCart(String productId, int quantity) async {
+  Future<void> removeProductFromCart(String productId, int quantity) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -164,6 +163,4 @@ class FirebaseProduct implements ProductClass {
       rethrow;
     }
   }
-
-  
 }

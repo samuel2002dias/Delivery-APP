@@ -6,10 +6,22 @@ import 'package:delivery/user/firebase_user.dart';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'translation_provider.dart'; // Import your TranslationProvider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Bloc.observer = SimpleBlocObserver();
-  runApp(Main(FirebaseUserRepo()));
+
+  // Initialize the TranslationProvider and load the default language
+  final translationProvider = TranslationProvider();
+  await translationProvider.load(Locale('en'));
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => translationProvider,
+      child: Main(FirebaseUserRepo()),
+    ),
+  );
 }

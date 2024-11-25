@@ -1,0 +1,18 @@
+<resources>
+    <string name="title">Title</string>
+    <string name="welcome_message">Welcome to our app!</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="enter_quantity">Enter quantity:</string>
+    <string name="cancel">Cancel</string>
+    <string name="home">Home</string>
+    <string name="requests">Requests</string>
+    <string name="something_went_wrong">Oops! Something went wrong!</string>
+    <string name="no_products_available">No products available</string>
+    <string name="switch_to_portuguese">Switch to Portuguese</string>
+     <string name="switch_to_english">Switch to English</string>
+     <string name="product_not_found">Product not found</string>
+    <string name="feedback">Feedback</string>
+    <string name="no_feedbacks_found">No feedbacks found</string>
+    <string name="error_loading_feedbacks">Error loading feedbacks</string>
+    <string name="from">From</string>
+</resources>

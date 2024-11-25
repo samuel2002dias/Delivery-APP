@@ -5,11 +5,13 @@ import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
 import 'package:delivery/menus/home/views/CartPage.dart';
 import 'package:delivery/menus/home/views/DetailsPage.dart';
 import 'package:delivery/menus/home/views/RequestList.dart';
+import 'package:delivery/translation_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:delivery/product/src/firebase_product.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,26 +24,32 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 2) {
+      context.read<SignInBloc>().add(SignOutRequired());
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   void showAddToCartDialog(BuildContext context, String productId,
       Map<String, dynamic> productData) {
     int quantity = 1;
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
+    final translationProvider =
+        Provider.of<TranslationProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Add to Cart'),
+              title: Text(translationProvider.translate('add_to_cart')),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Enter quantity:'),
+                  Text(translationProvider.translate('enter_quantity')),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -73,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(translationProvider.translate('cancel')),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -89,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     }
                   },
-                  child: const Text('Add to Cart'),
+                  child: Text(translationProvider.translate('add_to_cart')),
                 ),
               ],
             );
@@ -102,6 +110,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHomePage(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
+    final translationProvider = Provider.of<TranslationProvider>(context);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize:
@@ -172,169 +181,211 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                   ),
-                const Spacer(), // Pushes the image to the center
+                const Spacer(),
+                // Pushes the image to the center
                 Center(
                   child: Image.asset(
                     'images/Logo.png',
                     height: 70,
                   ),
                 ),
-                const Spacer(), // Pushes the button to the right
-                IconButton(
-                  onPressed: () {
-                    context.read<SignInBloc>().add(SignOutRequired());
+                const Spacer(),
+                // Pushes the button to the right
+                GestureDetector(
+                  onTap: () async {
+                    final translationProvider =
+                        Provider.of<TranslationProvider>(context,
+                            listen: false);
+                    if (translationProvider.locale.languageCode == 'en') {
+                      await translationProvider.load(Locale('pt'));
+                    } else {
+                      await translationProvider.load(Locale('en'));
+                    }
+                    setState(() {});
                   },
-                  icon: const Icon(CupertinoIcons.arrow_right_to_line),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    child: Image.asset(
+                      translationProvider.locale.languageCode == 'en'
+                          ? 'images/uk.png'
+                          : 'images/portugal.png',
+                      height: 30,
+                      width: 30,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('product').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Something went wrong!'));
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No products available'));
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('product').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text(translationProvider
+                          .translate('something_went_wrong')));
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                      child: Text(translationProvider
+                          .translate('no_products_available')));
+                }
 
-          final products = snapshot.data!.docs;
+                final products = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (BuildContext context, int index) {
-              final product = products[index];
-              final productData = product.data() as Map<String, dynamic>;
+                return ListView.builder(
+                  itemCount: products.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final product = products[index];
+                    final productData = product.data() as Map<String, dynamic>;
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0), // Set padding as needed
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (BuildContext context) =>
-                            DetailsPage(productId: product.id),
-                      ),
-                    );
-                    print('Container tapped');
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(
-                        seconds: 1), // Set the duration of the animation
-                    curve: Curves.easeInOut, // Set the curve of the animation
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(25.0), // Set border radius
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.shade400
-                              .withOpacity(0.5), // Shadow color with opacity
-                          spreadRadius: 3, // Spread radius
-                          blurRadius: 5, // Blur radius
-                          offset:
-                              const Offset(2, 2), // Offset in x and y direction
-                        ),
-                      ],
-                    ),
-                    height: 150.0, // Specify the height of the container
-                    width: double
-                        .infinity, // Make the container take the full width
-                    child: Stack(
-                      children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(
-                                  8.0), // Padding around the image
-                              child: ClipOval(
-                                child: Image.network(
-                                  productData['image'] ?? 'images/cheese.png',
-                                  height: 100.0, // Adjust the height as needed
-                                  width: 100.0, // Adjust the width as needed
-                                  fit: BoxFit
-                                      .cover, // Ensure the image covers the entire area
-                                ),
-                              ),
+                    return Padding(
+                      padding:
+                          const EdgeInsets.all(8.0), // Set padding as needed
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  DetailsPage(productId: product.id),
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(
-                                    8.0), // Padding around the text
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                          );
+                          print('Container tapped');
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(
+                              seconds: 1), // Set the duration of the animation
+                          curve: Curves
+                              .easeInOut, // Set the curve of the animation
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                                25.0), // Set border radius
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade400.withOpacity(
+                                    0.5), // Shadow color with opacity
+                                spreadRadius: 3, // Spread radius
+                                blurRadius: 5, // Blur radius
+                                offset: const Offset(
+                                    2, 2), // Offset in x and y direction
+                              ),
+                            ],
+                          ),
+                          height: 150.0, // Specify the height of the container
+                          width: double
+                              .infinity, // Make the container take the full width
+                          child: Stack(
+                            children: [
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(
+                                        8.0), // Padding around the image
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        productData['image'] ??
+                                            'images/cheese.png',
+                                        height:
+                                            100.0, // Adjust the height as needed
+                                        width:
+                                            100.0, // Adjust the width as needed
+                                        fit: BoxFit
+                                            .cover, // Ensure the image covers the entire area
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                          8.0), // Padding around the text
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            productData['name'] ??
+                                                'Product Name',
+                                            style: const TextStyle(
+                                              fontSize:
+                                                  20.0, // Larger font size for the name
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  4.0), // Space between name and ingredients
+                                          Text(
+                                            productData['description'] ??
+                                                'Description',
+                                            style: TextStyle(
+                                              fontSize:
+                                                  16.0, // Smaller font size for the ingredients
+                                              color: Colors.grey[700],
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Positioned(
+                                bottom: 8.0,
+                                right: 8.0,
+                                child: Row(
                                   children: [
                                     Text(
-                                      productData['name'] ?? 'Product Name',
+                                      '\$${productData['price'] ?? '0.00'}',
                                       style: const TextStyle(
                                         fontSize:
-                                            20.0, // Larger font size for the name
+                                            18.0, // Font size for the price
                                         fontWeight: FontWeight.bold,
+                                        color: Color.fromRGBO(252, 185, 19,
+                                            1), // Color for the price
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
                                     ),
-                                    const SizedBox(
-                                        height:
-                                            4.0), // Space between name and ingredients
-                                    Text(
-                                      productData['description'] ??
-                                          'Description',
-                                      style: TextStyle(
-                                        fontSize:
-                                            16.0, // Smaller font size for the ingredients
-                                        color: Colors.grey[700],
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
+                                    IconButton(
+                                      onPressed: () {
+                                        showAddToCartDialog(
+                                            context, product.id, productData);
+                                      },
+                                      icon: const Icon(
+                                          CupertinoIcons.add_circled_solid),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Positioned(
-                          bottom: 8.0,
-                          right: 8.0,
-                          child: Row(
-                            children: [
-                              Text(
-                                '\$${productData['price'] ?? '0.00'}',
-                                style: const TextStyle(
-                                  fontSize: 18.0, // Font size for the price
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(
-                                      252, 185, 19, 1), // Color for the price
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  showAddToCartDialog(
-                                      context, product.id, productData);
-                                },
-                                icon: const Icon(
-                                    CupertinoIcons.add_circled_solid),
-                              ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -345,6 +396,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
     List<Widget> _pages = [
       _buildHomePage(context),
       _buildRequestsPage(context),
@@ -353,14 +405,18 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: translationProvider.translate('home'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Requests',
+            label: translationProvider.translate('requests'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.logout),
+            label: 'Logout',
           ),
         ],
         currentIndex: _selectedIndex,
