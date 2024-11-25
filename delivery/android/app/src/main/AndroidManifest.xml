@@ -34,6 +34,24 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Braintree DropInActivity -->
+        <activity android:name="com.braintreepayments.api.DropInActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${applicationId}.braintree" />
+            </intent-filter>
+        </activity>
+
+        <!-- Braintree ThreeDSecureActivity -->
+        <activity android:name="com.braintreepayments.api.ThreeDSecureActivity"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:exported="true"
+            tools:replace="android:theme">
+        </activity>
        
         <meta-data
             android:name="flutterEmbedding"

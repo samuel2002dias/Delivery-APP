@@ -1,7 +1,7 @@
 import 'package:delivery/ProductCard.dart';
-import 'package:delivery/menus/home/views/CreditCardPayment.dart';
 import 'package:delivery/menus/home/bloc/Firebase_BuyNow.dart';
 import 'package:delivery/menus/home/views/HomePage.dart';
+import 'package:delivery/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,6 +28,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
   final TextEditingController _observationsController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   bool _isPaymentOnDelivery = false; // Add this state variable
+  final String tokenizationKey = 'sandbox_2438xwxw_rq8zs4nkvb48x775';
 
   @override
   void dispose() {
@@ -311,7 +312,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
                     child: SizedBox(
                       width: MediaQuery.of(context).size.width,
                       child: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           List<String> productIds = productsToShow
                               .map((product) => product['id'] as String)
                               .toList();
@@ -340,23 +341,25 @@ class _BuyNowPageState extends State<BuyNowPage> {
                               price: double.parse(totalPrice),
                             );
                           } else {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => CreditCardPayment(
-                                  totalAmount: double.parse(totalPrice),
-                                  productIds: productIds,
-                                  productDataList: productDataList,
-                                  productQuantities: productQuantities,
-                                  numberController: _numberController,
-                                  observationsController:
-                                      _observationsController,
-                                  addressController: _addressController,
-                                  selectedLocation: _selectedLocation,
-                                  showDialog: _showDialog,
-                                  totalPrice: double.parse(totalPrice),
-                                ),
-                              ),
-                            );
+                            final paymentService = PaymentService();
+                            final nonce =
+                                await paymentService.startBraintreePayment(
+                                    context, double.parse(totalPrice));
+                            if (nonce != null) {
+                              sendLocationToFirebase(
+                                context: context,
+                                productIds: productIds,
+                                productDataList: productDataList,
+                                productQuantities: productQuantities,
+                                numberController: _numberController,
+                                observationsController: _observationsController,
+                                addressController: _addressController,
+                                selectedLocation: _selectedLocation,
+                                showDialog: _showDialog,
+                                paymentMethod: 'Credit Card',
+                                price: double.parse(totalPrice),
+                              );
+                            }
                           }
                         },
                         style: TextButton.styleFrom(
