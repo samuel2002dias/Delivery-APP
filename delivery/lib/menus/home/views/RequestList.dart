@@ -6,17 +6,35 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:delivery/product/src/firebase_product.dart';
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart';
 
-class RequestList extends StatelessWidget {
+class RequestList extends StatefulWidget {
   const RequestList({Key? key}) : super(key: key);
+
+  @override
+  _RequestListState createState() => _RequestListState();
+}
+
+class _RequestListState extends State<RequestList> {
+  late TranslationProvider translationProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    translationProvider =
+        Provider.of<TranslationProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
+    translationProvider = Provider.of<TranslationProvider>(context);
 
     if (user == null) {
-      return const Center(child: Text('User not signed in'));
+      return Center(
+          child: Text(translationProvider.translate('user_not_signed_in')));
     }
 
     return Scaffold(
@@ -24,7 +42,7 @@ class RequestList extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Your Requests'),
+            Text(translationProvider.translate('your_requests')),
             const Spacer(),
             Center(
               child: Image.asset(
@@ -48,11 +66,15 @@ class RequestList extends StatelessWidget {
           }
           if (snapshot.hasError) {
             print('Error: ${snapshot.error}');
-            return const Center(child: Text('Something went wrong!'));
+            return Center(
+                child: Text(
+                    translationProvider.translate('something_went_wrong')));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             print('No data found');
-            return const Center(child: Text('No requests found'));
+            return Center(
+                child:
+                    Text(translationProvider.translate('no_requests_found')));
           }
 
           final requests = snapshot.data!.docs;
@@ -162,8 +184,10 @@ class RequestList extends StatelessWidget {
                                     },
                                   ),
                                 const SizedBox(height: 8),
-                                Text('Total Price: \$${totalPrice ?? 'N/A'}'),
-                                Text('Date: $formattedDate'),
+                                Text(
+                                    '${translationProvider.translate('total_price')}: \$${totalPrice ?? 'N/A'}'),
+                                Text(
+                                    '${translationProvider.translate('date')}: $formattedDate'),
                               ],
                             ),
                           ),
@@ -174,13 +198,13 @@ class RequestList extends StatelessWidget {
                         right: 0,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
+                              vertical: 4, horizontal: 6),
                           decoration: BoxDecoration(
                             color: _getStatusColor(status),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            status ?? 'N/A',
+                            _translateStatus(status),
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
@@ -194,6 +218,22 @@ class RequestList extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _translateStatus(String? status) {
+    final translationProvider =
+        Provider.of<TranslationProvider>(context, listen: false);
+    switch (status) {
+      case 'In Progress':
+        return translationProvider.translate('in_progress');
+      case 'Delivery':
+        return translationProvider.translate('delivery');
+      case 'Completed':
+        return translationProvider.translate('completed');
+
+      default:
+        return translationProvider.translate('unknown_status');
+    }
   }
 
   Color _getStatusColor(String? status) {

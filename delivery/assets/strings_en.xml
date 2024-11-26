@@ -9,10 +9,19 @@
     <string name="something_went_wrong">Oops! Something went wrong!</string>
     <string name="no_products_available">No products available</string>
     <string name="switch_to_portuguese">Switch to Portuguese</string>
-     <string name="switch_to_english">Switch to English</string>
-     <string name="product_not_found">Product not found</string>
+    <string name="switch_to_english">Switch to English</string>
+    <string name="product_not_found">Product not found</string>
     <string name="feedback">Feedback</string>
     <string name="no_feedbacks_found">No feedbacks found</string>
     <string name="error_loading_feedbacks">Error loading feedbacks</string>
     <string name="from">From</string>
+    <string name="user_not_signed_in">User not signed in</string>
+    <string name="your_requests">Your Requests</string>
+    <string name="no_requests_found">No requests found</string>
+    <string name="total_price">Total Price</string>
+    <string name="date">Date</string>
+    <string name="in_progress">In Progress</string>
+    <string name="delivery">Delivery</string>
+    <string name="completed">Completed</string>
+    <string name="unknown_status">Canceled</string>
 </resources>

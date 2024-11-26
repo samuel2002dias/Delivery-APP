@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_types_as_parameter_names, use_build_context_synchronously, file_names
+// ignore_for_file: avoid_types_as_parameter_names, use_build_context_synchronously, file_names, library_private_types_in_public_api
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   void showAddToCartDialog(BuildContext context, String productId,
       Map<String, dynamic> productData) {
     int quantity = 1;
-    final FirebaseProduct _firebaseProduct = FirebaseProduct();
+    final FirebaseProduct firebaseProduct = FirebaseProduct();
     final translationProvider =
         Provider.of<TranslationProvider>(context, listen: false);
     showDialog(
@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await _firebaseProduct.addToCart(productId, productData);
+                    await firebaseProduct.addToCart(productId, productData);
                     Navigator.of(context).pop();
                     if (Navigator.canPop(context)) {
                       Navigator.pushAndRemoveUntil(
@@ -109,7 +109,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildHomePage(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final FirebaseProduct _firebaseProduct = FirebaseProduct();
     final translationProvider = Provider.of<TranslationProvider>(context);
     return Scaffold(
       appBar: PreferredSize(
@@ -197,9 +196,9 @@ class _HomePageState extends State<HomePage> {
                         Provider.of<TranslationProvider>(context,
                             listen: false);
                     if (translationProvider.locale.languageCode == 'en') {
-                      await translationProvider.load(Locale('pt'));
+                      await translationProvider.load(const Locale('pt'));
                     } else {
-                      await translationProvider.load(Locale('en'));
+                      await translationProvider.load(const Locale('en'));
                     }
                     setState(() {});
                   },
@@ -391,36 +390,37 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRequestsPage(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
     return const RequestList();
   }
 
   @override
   Widget build(BuildContext context) {
     final translationProvider = Provider.of<TranslationProvider>(context);
-    List<Widget> _pages = [
+    List<Widget> pages = [
       _buildHomePage(context),
       _buildRequestsPage(context),
     ];
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: const Icon(Icons.home),
             label: translationProvider.translate('home'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
+            icon: const Icon(Icons.list),
             label: translationProvider.translate('requests'),
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.logout),
             label: 'Logout',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color.fromRGBO(252, 185, 19, 1),
+        selectedItemColor: const Color.fromRGBO(252, 185, 19, 1),
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),

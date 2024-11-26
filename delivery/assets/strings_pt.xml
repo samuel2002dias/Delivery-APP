@@ -15,4 +15,13 @@
     <string name="no_feedbacks_found">Nenhum feedback encontrado</string>
     <string name="error_loading_feedbacks">Erro ao carregar feedbacks</string>
     <string name="from">De</string>
+    <string name="user_not_signed_in">Usuário não conectado</string>
+    <string name="your_requests">Seus Pedidos</string>
+    <string name="no_requests_found">Nenhum pedido encontrado</string>
+    <string name="total_price">Preço Total</string>
+    <string name="date">Data</string>
+    <string name="in_progress">Em Progresso</string>
+    <string name="delivery">Em Entrega</string>
+    <string name="completed">Concluído</string>
+    <string name="unknown_status">Cancelado</string>
 </resources>
