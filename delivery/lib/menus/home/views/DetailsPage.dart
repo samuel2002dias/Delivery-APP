@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:delivery/product/src/firebase_product.dart';
 import 'package:provider/provider.dart';
+import 'package:delivery/translation_service.dart'; // Import TranslationService
 import '../../../firebase_Feedbacks.dart';
 
 class DetailsPage extends StatelessWidget {
@@ -17,10 +18,21 @@ class DetailsPage extends StatelessWidget {
 
   const DetailsPage({super.key, required this.productId});
 
+  Future<String> _translateIngredient(
+      String ingredientName, String languageCode) async {
+    if (languageCode == 'en') {
+      return await TranslationService.translateText(ingredientName);
+    } else {
+      return ingredientName;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final FirebaseProduct _firebaseProduct = FirebaseProduct();
     final translationProvider = Provider.of<TranslationProvider>(context);
+    final languageCode = translationProvider.locale.languageCode;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -144,24 +156,80 @@ class DetailsPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    MyWidget(
-                      name: ingredients['ingredientName1'] ?? 'Ingredient 1',
-                      icon: FontAwesomeIcons.carrot,
+                    FutureBuilder<String>(
+                      future: _translateIngredient(
+                          ingredients['ingredientName1'] ?? 'Ingredient 1',
+                          languageCode),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        return MyWidget(
+                          name: snapshot.data ?? 'Ingredient 1',
+                          icon: FontAwesomeIcons.carrot,
+                        );
+                      },
                     ),
                     const SizedBox(width: 8),
-                    MyWidget(
-                      name: ingredients['ingredientName2'] ?? 'Ingredient 2',
-                      icon: FontAwesomeIcons.carrot,
+                    FutureBuilder<String>(
+                      future: _translateIngredient(
+                          ingredients['ingredientName2'] ?? 'Ingredient 2',
+                          languageCode),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        return MyWidget(
+                          name: snapshot.data ?? 'Ingredient 2',
+                          icon: FontAwesomeIcons.carrot,
+                        );
+                      },
                     ),
                     const SizedBox(width: 8),
-                    MyWidget(
-                      name: ingredients['ingredientName3'] ?? 'Ingredient 3',
-                      icon: FontAwesomeIcons.drumstickBite,
+                    FutureBuilder<String>(
+                      future: _translateIngredient(
+                          ingredients['ingredientName3'] ?? 'Ingredient 3',
+                          languageCode),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        return MyWidget(
+                          name: snapshot.data ?? 'Ingredient 3',
+                          icon: FontAwesomeIcons.drumstickBite,
+                        );
+                      },
                     ),
                     const SizedBox(width: 8),
-                    MyWidget(
-                      name: ingredients['ingredientName4'] ?? 'Ingredient 4',
-                      icon: FontAwesomeIcons.cheese,
+                    FutureBuilder<String>(
+                      future: _translateIngredient(
+                          ingredients['ingredientName4'] ?? 'Ingredient 4',
+                          languageCode),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        return MyWidget(
+                          name: snapshot.data ?? 'Ingredient 4',
+                          icon: FontAwesomeIcons.cheese,
+                        );
+                      },
                     ),
                     const SizedBox(width: 8),
                   ],

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:delivery/product/src/firebase_product.dart';
 import 'package:provider/provider.dart';
+import 'package:delivery/translation_service.dart'; // Import TranslationService
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -331,16 +332,40 @@ class _HomePageState extends State<HomePage> {
                                           const SizedBox(
                                               height:
                                                   4.0), // Space between name and ingredients
-                                          Text(
-                                            productData['description'] ??
-                                                'Description',
-                                            style: TextStyle(
-                                              fontSize:
-                                                  16.0, // Smaller font size for the ingredients
-                                              color: Colors.grey[700],
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
+                                          FutureBuilder<String>(
+                                            future: translationProvider
+                                                        .locale.languageCode ==
+                                                    'en'
+                                                ? TranslationService
+                                                    .translateText(
+                                                    productData[
+                                                            'description'] ??
+                                                        'Description',
+                                                  )
+                                                : Future.value(productData[
+                                                        'description'] ??
+                                                    'Description'),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return const CircularProgressIndicator();
+                                              }
+                                              if (snapshot.hasError) {
+                                                return Text(
+                                                    'Error: ${snapshot.error}');
+                                              }
+                                              return Text(
+                                                snapshot.data ??
+                                                    'No description available',
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      16.0, // Smaller font size for the ingredients
+                                                  color: Colors.grey[700],
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              );
+                                            },
                                           ),
                                         ],
                                       ),

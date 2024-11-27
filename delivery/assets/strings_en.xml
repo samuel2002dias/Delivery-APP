@@ -24,4 +24,16 @@
     <string name="delivery">Delivery</string>
     <string name="completed">Completed</string>
     <string name="unknown_status">Canceled</string>
+    <string name="leave_feedback">Leave your feedback, so we can improve things!</string>
+<string name="feedback_important">Your feedback is important to us. It helps us improve our services and products.</string>
+<string name="name">Name</string>
+<string name="please_enter_name">Please enter your name</string>
+<string name="email">Email</string>
+<string name="please_enter_email">Please enter your email</string>
+<string name="feedback">Feedback</string>
+
+<string name="submit">Submit</string>
+<string name="feedback_submitted">Feedback submitted</string>
+<string name="product_not_found">Product not found.</string>
+<string name="error_fetching_product">Error fetching product.</string>
 </resources>

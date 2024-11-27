@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart';
+import 'package:delivery/translation_service.dart';
 
 class ProductCard extends StatelessWidget {
   final Map<String, dynamic> productDetails;
@@ -14,6 +17,9 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+    final languageCode = translationProvider.locale.languageCode;
+
     return InkWell(
       onTap: onTap,
       child: AnimatedContainer(
@@ -63,14 +69,32 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4.0),
-                        Text(
-                          productDetails['description'] ?? 'Description',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.grey[700],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        FutureBuilder<String>(
+                          future: languageCode == 'en'
+                              ? TranslationService.translateText(
+                                  productDetails['description'] ??
+                                      'Description',
+                                )
+                              : Future.value(productDetails['description'] ??
+                                  'Description'),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            return Text(
+                              snapshot.data ?? 'No description available',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.grey[700],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
                         ),
                         const SizedBox(height: 4.0),
                         Text(
@@ -120,6 +144,9 @@ class SimpleProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+    final languageCode = translationProvider.locale.languageCode;
+
     return InkWell(
       onTap: () {},
       child: AnimatedContainer(
@@ -172,14 +199,32 @@ class SimpleProductCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4.0),
-                        Text(
-                          productDetails['description'] ?? 'Description',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.grey[700],
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        FutureBuilder<String>(
+                          future: languageCode == 'en'
+                              ? TranslationService.translateText(
+                                  productDetails['description'] ??
+                                      'Description',
+                                )
+                              : Future.value(productDetails['description'] ??
+                                  'Description'),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            return Text(
+                              snapshot.data ?? 'No description available',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.grey[700],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          },
                         ),
                         const SizedBox(height: 4.0),
                       ],

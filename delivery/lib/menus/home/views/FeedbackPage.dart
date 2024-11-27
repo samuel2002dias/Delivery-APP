@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:delivery/user/src/models/user.dart';
 import 'package:delivery/user/firebase_user.dart'; // Import FirebaseUserRepo
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart';
 
 class FeedbackPage extends StatefulWidget {
   final String productId;
@@ -76,7 +78,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Feedback submitted')),
+          SnackBar(
+              content: Text(
+                  Provider.of<TranslationProvider>(context, listen: false)
+                      .translate('feedback_submitted'))),
         );
 
         Navigator.popUntil(context, (route) => route.isFirst);
@@ -86,6 +91,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -115,7 +122,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data == null) {
-                  return const Center(child: Text('Product not found.'));
+                  return Center(
+                      child: Text(
+                          translationProvider.translate('product_not_found')));
                 }
 
                 final productDetails = snapshot.data!;
@@ -130,18 +139,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
               },
             ),
             const SizedBox(height: 16.0),
-            const Text(
-              "Leave your feedback, so we can improve things!",
-              style: TextStyle(
+            Text(
+              translationProvider.translate('leave_feedback'),
+              style: const TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
                 color: Color.fromRGBO(252, 185, 19, 1),
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text(
-              "Your feedback is important to us. It helps us improve our services and products.",
-              style: TextStyle(
+            Text(
+              translationProvider.translate('feedback_important'),
+              style: const TextStyle(
                 fontSize: 14.0,
                 fontWeight: FontWeight.w400,
                 color: Colors.black,
@@ -155,35 +164,36 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 children: <Widget>[
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
                           vertical: 15.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      enabledBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      labelText: 'Name',
-                      labelStyle: TextStyle(
+                      labelText: translationProvider.translate('name'),
+                      labelStyle: const TextStyle(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
+                        return translationProvider
+                            .translate('please_enter_name');
                       }
                       return null;
                     },
@@ -191,35 +201,36 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   const SizedBox(height: 16.0),
                   TextFormField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
                           vertical: 15.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      enabledBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      labelText: 'Email',
-                      labelStyle: TextStyle(
+                      labelText: translationProvider.translate('email'),
+                      labelStyle: const TextStyle(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return translationProvider
+                            .translate('please_enter_email');
                       }
                       return null;
                     },
@@ -228,35 +239,36 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   TextFormField(
                     controller: _feedbackController,
                     maxLines: 4,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
                           vertical: 15.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
+                      border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      enabledBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
+                      focusedBorder: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(25.0)),
                         borderSide: BorderSide(
                           color: Color.fromRGBO(252, 185, 19, 1),
                         ),
                       ),
-                      labelText: 'Feedback',
-                      labelStyle: TextStyle(
+                      labelText: translationProvider.translate('feedback'),
+                      labelStyle: const TextStyle(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your feedback';
+                        return translationProvider
+                            .translate('please_enter_feedback');
                       }
                       return null;
                     },
@@ -277,9 +289,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(
+                        child: Text(
+                          translationProvider.translate('submit'),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
