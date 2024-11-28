@@ -1,10 +1,11 @@
-// ignore_for_file: sort_child_properties_last
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
+import 'package:webapp/translation_service.dart';
 
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
@@ -28,7 +29,7 @@ class ProductPage extends StatelessWidget {
     }
   }
 
-  Future<void> _Product(String productId) async {
+  Future<void> _deleteProduct(String productId) async {
     try {
       await FirebaseFirestore.instance
           .collection('product')
@@ -40,25 +41,27 @@ class ProductPage extends StatelessWidget {
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, String productId) {
+    final translationProvider =
+        Provider.of<TranslationProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this product?'),
+          title: Text(translationProvider.translate('confirm_deletion')),
+          content: Text(translationProvider.translate('delete_confirmation')),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(translationProvider.translate('cancel')),
             ),
             TextButton(
               onPressed: () {
-                _Product(productId);
+                _deleteProduct(productId);
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete'),
+              child: Text(translationProvider.translate('delete')),
             ),
           ],
         );
@@ -68,10 +71,14 @@ class ProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
     final screenSize = MediaQuery.of(context).size;
     final isLargeScreen = screenSize.width > 600;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(translationProvider.translate('products')),
+      ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchProducts(),
         builder: (context, snapshot) {
@@ -80,7 +87,9 @@ class ProductPage extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No products available'));
+            return Center(
+                child: Text(
+                    translationProvider.translate('no_products_available')));
           } else {
             List<Map<String, dynamic>> products = snapshot.data!;
             return Column(
@@ -107,192 +116,252 @@ class ProductPage extends StatelessWidget {
                             String imageUrl =
                                 snapshot.data ?? 'images/Logo.png';
 
-                            return Container(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8.0,
-                                  horizontal: isLargeScreen ? 32.0 : 16.0),
-                              child: AnimatedContainer(
-                                duration: const Duration(seconds: 1),
-                                curve: Curves.easeInOut,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.grey.shade400.withOpacity(0.5),
-                                      spreadRadius: 3,
-                                      blurRadius: 5,
-                                      offset: const Offset(2, 2),
-                                    ),
-                                  ],
-                                ),
-                                height: isLargeScreen
-                                    ? 170.0
-                                    : 186.0, // Adjusted height
-                                width: double.infinity,
-                                child: Stack(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: ClipOval(
-                                            child: Image.network(
-                                              imageUrl,
-                                              height:
-                                                  isLargeScreen ? 100.0 : 100.0,
-                                              width:
-                                                  isLargeScreen ? 100.0 : 100.0,
-                                              fit: BoxFit.cover,
-                                              loadingBuilder: (context, child,
-                                                  loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                }
-                                                return Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    value: loadingProgress
-                                                                .expectedTotalBytes !=
-                                                            null
-                                                        ? loadingProgress
-                                                                .cumulativeBytesLoaded /
-                                                            loadingProgress
-                                                                .expectedTotalBytes!
-                                                        : null,
-                                                  ),
-                                                );
-                                              },
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Image.asset(
-                                                  'images/Logo.png',
-                                                  height: isLargeScreen
-                                                      ? 150.0
-                                                      : 130.0,
-                                                  width: isLargeScreen
-                                                      ? 150.0
-                                                      : 130.0,
-                                                  fit: BoxFit.cover,
-                                                );
-                                              },
-                                            ),
+                            return FutureBuilder<String>(
+                              future: translationProvider.locale.languageCode ==
+                                      'en'
+                                  ? TranslationService.translateText(
+                                      productData['description'] ??
+                                          'Description')
+                                  : Future.value(productData['description'] ??
+                                      'Description'),
+                              builder: (context, descriptionSnapshot) {
+                                if (descriptionSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (descriptionSnapshot.hasError) {
+                                  return Center(
+                                      child: Text(
+                                          'Error: ${descriptionSnapshot.error}'));
+                                } else {
+                                  String description =
+                                      descriptionSnapshot.data ?? 'Description';
+
+                                  return Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                        horizontal:
+                                            isLargeScreen ? 32.0 : 16.0),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(seconds: 1),
+                                      curve: Curves.easeInOut,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.shade400
+                                                .withOpacity(0.5),
+                                            spreadRadius: 3,
+                                            blurRadius: 5,
+                                            offset: const Offset(2, 2),
                                           ),
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  productData['name'] ??
-                                                      'Product Name',
-                                                  style: TextStyle(
-                                                    fontSize: isLargeScreen
-                                                        ? 24.0
-                                                        : 20.0,
-                                                    fontWeight: FontWeight.bold,
+                                        ],
+                                      ),
+                                      height: isLargeScreen
+                                          ? 170.0
+                                          : 186.0, // Adjusted height
+                                      width: double.infinity,
+                                      child: Stack(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: ClipOval(
+                                                  child: Image.network(
+                                                    imageUrl,
+                                                    height: isLargeScreen
+                                                        ? 100.0
+                                                        : 100.0,
+                                                    width: isLargeScreen
+                                                        ? 100.0
+                                                        : 100.0,
+                                                    fit: BoxFit.cover,
+                                                    loadingBuilder: (context,
+                                                        child,
+                                                        loadingProgress) {
+                                                      if (loadingProgress ==
+                                                          null) {
+                                                        return child;
+                                                      }
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          value: loadingProgress
+                                                                      .expectedTotalBytes !=
+                                                                  null
+                                                              ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                              : null,
+                                                        ),
+                                                      );
+                                                    },
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Image.asset(
+                                                        'images/Logo.png',
+                                                        height: isLargeScreen
+                                                            ? 150.0
+                                                            : 130.0,
+                                                        width: isLargeScreen
+                                                            ? 150.0
+                                                            : 130.0,
+                                                        fit: BoxFit.cover,
+                                                      );
+                                                    },
                                                   ),
                                                 ),
-                                                const SizedBox(height: 4.0),
-                                                Text(
-                                                  productData['description'] ??
-                                                      'Description',
-                                                  style: TextStyle(
-                                                    fontSize: isLargeScreen
-                                                        ? 18.0
-                                                        : 16.0,
-                                                    color: Colors.grey[700],
+                                              ),
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        productData['name'] ??
+                                                            'Product Name',
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              isLargeScreen
+                                                                  ? 24.0
+                                                                  : 20.0,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 4.0),
+                                                      Text(
+                                                        description,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              isLargeScreen
+                                                                  ? 18.0
+                                                                  : 16.0,
+                                                          color:
+                                                              Colors.grey[700],
+                                                        ),
+                                                        maxLines: isLargeScreen
+                                                            ? null
+                                                            : 1,
+                                                        overflow: isLargeScreen
+                                                            ? TextOverflow
+                                                                .visible
+                                                            : TextOverflow
+                                                                .ellipsis,
+                                                      ),
+                                                    ],
                                                   ),
-                                                  maxLines:
-                                                      isLargeScreen ? null : 1,
-                                                  overflow: isLargeScreen
-                                                      ? TextOverflow.visible
-                                                      : TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Positioned(
+                                            bottom: 8.0,
+                                            right: 8.0,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    context.go(
+                                                        '/edit-product/${productData['productID']}');
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromRGBO(
+                                                            252, 185, 19, 1),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              25.0),
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      vertical: isLargeScreen
+                                                          ? 12.0
+                                                          : 8.0,
+                                                      horizontal: isLargeScreen
+                                                          ? 24.0
+                                                          : 16.0,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    translationProvider
+                                                        .translate('edit'),
+                                                    style: TextStyle(
+                                                      fontSize: isLargeScreen
+                                                          ? 20.0
+                                                          : 16.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8.0),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    _showDeleteConfirmationDialog(
+                                                        context,
+                                                        productData[
+                                                            'productID']);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.red,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              25.0),
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      vertical: isLargeScreen
+                                                          ? 12.0
+                                                          : 8.0,
+                                                      horizontal: isLargeScreen
+                                                          ? 24.0
+                                                          : 16.0,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    translationProvider
+                                                        .translate('remove'),
+                                                    style: TextStyle(
+                                                      fontSize: isLargeScreen
+                                                          ? 20.0
+                                                          : 16.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Positioned(
-                                      bottom: 8.0,
-                                      right: 8.0,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              context.go(
-                                                  '/edit-product/${productData['productID']}');
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromRGBO(
-                                                      252, 185, 19, 1),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(25.0),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                vertical:
-                                                    isLargeScreen ? 12.0 : 8.0,
-                                                horizontal:
-                                                    isLargeScreen ? 24.0 : 16.0,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'Edit',
-                                              style: TextStyle(
-                                                fontSize:
-                                                    isLargeScreen ? 20.0 : 16.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8.0),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              _showDeleteConfirmationDialog(
-                                                  context,
-                                                  productData['productID']);
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.red,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(25.0),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                vertical:
-                                                    isLargeScreen ? 12.0 : 8.0,
-                                                horizontal:
-                                                    isLargeScreen ? 24.0 : 16.0,
-                                              ),
-                                            ),
-                                            child: Text(
-                                              'Remove',
-                                              style: TextStyle(
-                                                fontSize:
-                                                    isLargeScreen ? 20.0 : 16.0,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
+                                  );
+                                }
+                              },
                             );
                           }
                         },
@@ -316,7 +385,7 @@ class ProductPage extends StatelessWidget {
                           horizontal: isLargeScreen ? 40.0 : 32.0),
                     ),
                     child: Text(
-                      'Add Product',
+                      translationProvider.translate('add_product'),
                       style: TextStyle(
                         fontSize: isLargeScreen ? 22.0 : 18.0,
                         fontWeight: FontWeight.bold,

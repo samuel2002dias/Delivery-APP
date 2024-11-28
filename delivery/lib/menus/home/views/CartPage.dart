@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:delivery/product/src/firebase_product.dart';
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart'; // Import the TranslationProvider
+import 'package:delivery/translation_service.dart'; // Import the TranslationService
 
 class CartPage extends StatefulWidget {
   const CartPage({Key? key, required this.userId}) : super(key: key);
@@ -65,8 +68,19 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
+  Future<String> _getTranslatedDescription(String description) async {
+    final translationProvider =
+        Provider.of<TranslationProvider>(context, listen: false);
+    if (translationProvider.locale.languageCode == 'en') {
+      return await TranslationService.translateText(description);
+    }
+    return description;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -86,13 +100,13 @@ class _CartPageState extends State<CartPage> {
         children: [
           Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Cart',
-                    style: TextStyle(
+                    translationProvider.translate('cart'),
+                    style: const TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -108,7 +122,9 @@ class _CartPageState extends State<CartPage> {
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No products in cart.'));
+                      return Center(
+                          child: Text(translationProvider
+                              .translate('no_products_in_cart')));
                     }
 
                     final products = snapshot.data!;
@@ -138,46 +154,65 @@ class _CartPageState extends State<CartPage> {
                                 ),
                               ),
                               title: Text(
-                                productDetails['name'] ?? 'Product Name',
+                                productDetails['name'] ??
+                                    translationProvider
+                                        .translate('product_name'),
                                 style: const TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
+                              subtitle: FutureBuilder<String>(
+                                future: _getTranslatedDescription(
                                     productDetails['description'] ??
-                                        'Description',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4.0),
-                                  Text(
-                                    'Quantity: $quantity',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon:
-                                        const Icon(Icons.remove_circle_outline),
-                                    onPressed: () async {
-                                      await _removeProductFromCart(
-                                          productId, quantity);
-                                    },
-                                  ),
-                                ],
+                                        translationProvider
+                                            .translate('description')),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text('Translating...');
+                                  } else if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  } else {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          snapshot.data ??
+                                              translationProvider
+                                                  .translate('description'),
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4.0),
+                                        Text(
+                                          '${translationProvider.translate('quantity')}: $quantity',
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                              Icons.remove_circle_outline),
+                                          onPressed: () async {
+                                            await _removeProductFromCart(
+                                                productId, quantity);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
                               ),
                               trailing: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '\$${productDetails['price'] ?? '0.00'}',
+                                    '${productDetails['price'] ?? '0.00'}\€',
                                     style: const TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
@@ -229,9 +264,9 @@ class _CartPageState extends State<CartPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        "Buy Now",
-                        style: TextStyle(
+                      child: Text(
+                        translationProvider.translate('buy_now'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,

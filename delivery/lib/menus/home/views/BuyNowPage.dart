@@ -5,6 +5,8 @@ import 'package:delivery/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart';
 
 class BuyNowPage extends StatefulWidget {
   final List<Map<String, dynamic>> products;
@@ -43,11 +45,14 @@ class _BuyNowPageState extends State<BuyNowPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Notification'),
+          title: Text(Provider.of<TranslationProvider>(context, listen: false)
+              .translate('notification')),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text(
+                  Provider.of<TranslationProvider>(context, listen: false)
+                      .translate('ok')),
               onPressed: () {
                 Navigator.of(context).pop();
                 if (message == 'Order requested') {
@@ -82,6 +87,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
     final productsToShow = widget.singleProduct != null
         ? [widget.singleProduct!]
         : widget.products;
@@ -127,9 +133,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                 }).toList(),
                 const Divider(),
                 const SizedBox(height: 5),
-                const Text(
-                  'Where should the product be delivered?',
-                  style: TextStyle(
+                Text(
+                  translationProvider.translate('delivery_address'),
+                  style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -139,29 +145,29 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   controller: _addressController,
                   keyboardType: TextInputType.text,
                   maxLength: 200,
-                  decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15.0, horizontal: 20.0),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    labelText: 'Address',
-                    labelStyle: TextStyle(
+                    labelText: translationProvider.translate('address'),
+                    labelStyle: const TextStyle(
                       color: Color.fromRGBO(252, 185, 19, 1),
                     ),
                     counterText: '', // This line removes the digit counter
@@ -182,9 +188,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                         addressController: _addressController,
                       );
                     },
-                    child: const Text(
-                      'Rather pin point your location? Click here',
-                      style: TextStyle(
+                    child: Text(
+                      translationProvider.translate('pin_point_location'),
+                      style: const TextStyle(
                         color: Color.fromRGBO(252, 185, 19, 1),
                         decoration: TextDecoration.underline,
                       ),
@@ -194,9 +200,9 @@ class _BuyNowPageState extends State<BuyNowPage> {
                 const SizedBox(height: 10),
                 const Divider(),
                 const SizedBox(height: 5),
-                const Text(
-                  ' NIF',
-                  style: TextStyle(
+                Text(
+                  translationProvider.translate('nif'),
+                  style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -206,26 +212,26 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   controller: _numberController,
                   keyboardType: TextInputType.number,
                   maxLength: 9,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    labelText: 'Insert NIF',
+                    labelText: translationProvider.translate('insert_nif'),
                     counterText: '', // This line removes the digit counter
                   ),
                   inputFormatters: [
@@ -253,21 +259,23 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   child: Center(
                     child: Text(
                       _isPaymentOnDelivery
-                          ? 'Payment on Delivery chosen'
-                          : 'Payment on Delivery?',
+                          ? translationProvider
+                              .translate('payment_on_delivery_chosen')
+                          : translationProvider
+                              .translate('payment_on_delivery'),
                       style: TextStyle(
                         color: _isPaymentOnDelivery
                             ? Colors.green
-                            : Color.fromRGBO(252, 185, 19, 1),
+                            : const Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
                   ),
                 ),
                 const Divider(),
                 const SizedBox(height: 10),
-                const Text(
-                  'Observations',
-                  style: TextStyle(
+                Text(
+                  translationProvider.translate('observations'),
+                  style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -277,29 +285,29 @@ class _BuyNowPageState extends State<BuyNowPage> {
                   controller: _observationsController,
                   keyboardType: TextInputType.text,
                   maxLength: 200,
-                  decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-                    border: OutlineInputBorder(
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15.0, horizontal: 20.0),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    focusedBorder: OutlineInputBorder(
+                    focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(25.0)),
                       borderSide: BorderSide(
                         color: Color.fromRGBO(252, 185, 19, 1),
                       ),
                     ),
-                    labelText: 'Observations',
-                    labelStyle: TextStyle(
+                    labelText: translationProvider.translate('observations'),
+                    labelStyle: const TextStyle(
                       color: Color.fromRGBO(252, 185, 19, 1),
                     ),
                     counterText: '', // This line removes the digit counter
@@ -372,7 +380,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
                           ),
                         ),
                         child: Text(
-                          "Pay $totalPrice",
+                          "${translationProvider.translate('pay')} $totalPrice€",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,

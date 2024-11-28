@@ -116,7 +116,7 @@ class ProductCard extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    '\$${productDetails['price'] ?? '0.00'}',
+                    '${productDetails['price'] ?? '0.00'}\€',
                     style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,

@@ -1,0 +1,12 @@
+<resources>
+    <string name="welcome">Bem-vindo</string>
+    <string name="confirm_deletion">Confirmar Exclusão</string>
+    <string name="delete_confirmation">Tem certeza de que deseja excluir este produto?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Excluir</string>
+    <string name="no_products_available">Nenhum produto disponível</string>
+    <string name="edit">Editar</string>
+    <string name="remove">Remover</string>
+    <string name="add_product">Adicionar Produto</string>
+    <string name="products">Produtos</string>
+</resources>

@@ -226,7 +226,7 @@ class RequestPage extends StatelessWidget {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: '\$${request['price']}',
+                                    text: '${request['price']}\€',
                                   ),
                                 ],
                               ),

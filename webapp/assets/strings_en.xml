@@ -1,0 +1,13 @@
+<resources>
+    <string name="welcome">Welcome</string>
+    <string name="confirm_deletion">Confirm Deletion</string>
+    <string name="delete_confirmation">Are you sure you want to delete this product?</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="no_products_available">No products available</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
+    <string name="add_product">Add Product</string>
+    <string name="products">Products</string>
+
+</resources>

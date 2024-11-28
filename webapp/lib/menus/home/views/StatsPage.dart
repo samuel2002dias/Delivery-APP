@@ -196,7 +196,7 @@ class _StatsPageState extends State<StatsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Total Amount: \$${_totalAmount.toStringAsFixed(2)}',
+                              'Total Amount: ${_totalAmount.toStringAsFixed(2)}\€',
                               style: const TextStyle(
                                   fontSize: 20.0, fontWeight: FontWeight.bold),
                             ),
@@ -245,7 +245,7 @@ class _StatsPageState extends State<StatsPage> {
                           children: [
                             const SizedBox(height: 8.0),
                             Text(
-                              'Average Request Amount: \$${_averageRequestAmount.toStringAsFixed(2)}',
+                              'Average Request Amount: ${_averageRequestAmount.toStringAsFixed(2)}\€',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),

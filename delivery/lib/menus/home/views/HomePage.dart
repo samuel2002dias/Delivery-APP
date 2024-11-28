@@ -379,7 +379,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Row(
                                   children: [
                                     Text(
-                                      '\$${productData['price'] ?? '0.00'}',
+                                      '${productData['price'] ?? '0.00'}\€',
                                       style: const TextStyle(
                                         fontSize:
                                             18.0, // Font size for the price

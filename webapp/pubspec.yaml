@@ -52,6 +52,8 @@ dependencies:
   geolocator: ^8.0.0
   geolocator_web: ^2.0.0
   table_calendar: ^3.0.0
+  xml: ^5.0.0
+  http: ^0.13.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -68,6 +70,8 @@ flutter:
   uses-material-design: true
   assets:
     - images/
+    - assets/strings_en.xml
+    - assets/strings_pt.xml
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

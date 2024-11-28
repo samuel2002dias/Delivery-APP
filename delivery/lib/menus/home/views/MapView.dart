@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:delivery/translation_provider.dart';
 
 class MapView extends StatefulWidget {
   @override
@@ -28,6 +30,8 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -47,9 +51,9 @@ class _MapViewState extends State<MapView> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           children: [
-            const Text(
-              'Pin Point your location',
-              style: TextStyle(
+            Text(
+              translationProvider.translate('pin_point_location'),
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -99,9 +103,9 @@ class _MapViewState extends State<MapView> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      "OK",
-                      style: TextStyle(
+                    child: Text(
+                      translationProvider.translate('ok'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,

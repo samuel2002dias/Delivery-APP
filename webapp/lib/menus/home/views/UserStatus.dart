@@ -277,7 +277,7 @@ class FeedbacksGiven extends StatelessWidget {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Total Money Spent: \$${totalMoneySpent.toStringAsFixed(2)}',
+                        'Total Money Spent: ${totalMoneySpent.toStringAsFixed(2)}\€',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
