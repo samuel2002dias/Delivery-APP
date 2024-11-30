@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
+
 
 class FeedbacksGiven extends StatelessWidget {
   final String userID;
@@ -54,10 +57,11 @@ class FeedbacksGiven extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    final translationProvider = Provider.of<TranslationProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Feedbacks Given'),
+        title: Text(translationProvider.translate('feedbacks_given')),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _fetchRequestData(),
@@ -67,11 +71,15 @@ class FeedbacksGiven extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching request data.'));
+            return Center(
+                child: Text(translationProvider
+                    .translate('error_fetching_request_data')));
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: Text('No request data found.'));
+            return Center(
+                child: Text(
+                    translationProvider.translate('no_request_data_found')));
           }
 
           final requestData = snapshot.data!;
@@ -98,8 +106,9 @@ class FeedbacksGiven extends StatelessWidget {
                     }
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                        child: Text('No feedbacks given.'),
+                      return Center(
+                        child: Text(translationProvider
+                            .translate('no_feedbacks_given')),
                       );
                     }
 
@@ -125,14 +134,16 @@ class FeedbacksGiven extends StatelessWidget {
 
                             if (!productSnapshot.hasData ||
                                 !productSnapshot.data!.exists) {
-                              return const ListTile(
-                                title: Text('Product not found'),
+                              return ListTile(
+                                title: Text(translationProvider
+                                    .translate('product_not_found')),
                               );
                             }
 
                             final product = productSnapshot.data!;
-                            final productName =
-                                product['name'] ?? 'No Product Name';
+                            final productName = product['name'] ??
+                                translationProvider
+                                    .translate('no_product_name');
                             final productImage = product['image'] ?? '';
 
                             return Container(
@@ -209,7 +220,9 @@ class FeedbacksGiven extends StatelessWidget {
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Text(
-                                                  'Feedback given for the $productName',
+                                                  translationProvider.translate(
+                                                          'feedback_given_for') +
+                                                      ' $productName',
                                                   style: const TextStyle(
                                                     fontSize: 20.0,
                                                     fontWeight: FontWeight.bold,
@@ -218,7 +231,9 @@ class FeedbacksGiven extends StatelessWidget {
                                                 const SizedBox(height: 4.0),
                                                 Text(
                                                   feedback['feedback'] ??
-                                                      'No feedback',
+                                                      translationProvider
+                                                          .translate(
+                                                              'no_feedback'),
                                                   style: TextStyle(
                                                     fontSize: 16.0,
                                                     color: Colors.grey[700],
@@ -262,32 +277,32 @@ class FeedbacksGiven extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total Requests: $totalRequests',
+                        '${translationProvider.translate('total_requests')}: $totalRequests',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Completed Requests: $completedRequests',
+                        '${translationProvider.translate('completed_requests')}: $completedRequests',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Canceled Requests: $canceledRequests',
+                        '${translationProvider.translate('canceled_requests')}: $canceledRequests',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Total Money Spent: ${totalMoneySpent.toStringAsFixed(2)}\€',
+                        '${translationProvider.translate('total_money_spent')}: ${totalMoneySpent.toStringAsFixed(2)}\€',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Completed Credit Card Payments: $completedCreditCardPayments',
+                        '${translationProvider.translate('completed_credit_card_payments')}: $completedCreditCardPayments',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Completed On Delivery Payments: $completedOnDeliveryPayments',
+                        '${translationProvider.translate('completed_on_delivery_payments')}: $completedOnDeliveryPayments',
                         style: const TextStyle(fontSize: 16.0),
                       ),
                     ],
@@ -310,9 +325,9 @@ class FeedbacksGiven extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 16.0, horizontal: 32.0), // Increase padding
                   ),
-                  child: const Text(
-                    'Go Back',
-                    style: TextStyle(
+                  child: Text(
+                    translationProvider.translate('go_back'),
+                    style: const TextStyle(
                       fontSize: 20.0, // Increase font size for the button
                       fontWeight: FontWeight.bold,
                       color: Colors.white, // Text color

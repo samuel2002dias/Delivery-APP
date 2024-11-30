@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
 
 class ClientsPage extends StatefulWidget {
   @override
@@ -29,9 +31,11 @@ class _ClientsPageState extends State<ClientsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List of Clients'),
+        title: Text(translationProvider.translate('list_of_clients')),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('users').snapshots(),
@@ -41,7 +45,8 @@ class _ClientsPageState extends State<ClientsPage> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No clients found.'));
+            return Center(
+                child: Text(translationProvider.translate('no_clients_found')));
           }
 
           final clients = snapshot.data!.docs;
@@ -57,11 +62,11 @@ class _ClientsPageState extends State<ClientsPage> {
               return Row(
                 children: [
                   Expanded(
-                    child: _buildClientCard(client1),
+                    child: _buildClientCard(client1, translationProvider),
                   ),
                   if (client2 != null)
                     Expanded(
-                      child: _buildClientCard(client2),
+                      child: _buildClientCard(client2, translationProvider),
                     ),
                 ],
               );
@@ -72,7 +77,8 @@ class _ClientsPageState extends State<ClientsPage> {
     );
   }
 
-  Widget _buildClientCard(DocumentSnapshot client) {
+  Widget _buildClientCard(
+      DocumentSnapshot client, TranslationProvider translationProvider) {
     return FutureBuilder<int>(
       future: _getFeedbackCount(client.id),
       builder: (context, feedbackSnapshot) {
@@ -130,7 +136,8 @@ class _ClientsPageState extends State<ClientsPage> {
                     children: [
                       const SizedBox(height: 16.0),
                       Text(
-                        client['name'] ?? 'No Name',
+                        client['name'] ??
+                            translationProvider.translate('no_name'),
                         style: const TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
@@ -139,15 +146,16 @@ class _ClientsPageState extends State<ClientsPage> {
                       const SizedBox(height: 32.0),
                       Row(
                         children: [
-                          const Text(
-                            'Email: ',
-                            style: TextStyle(
+                          Text(
+                            '${translationProvider.translate('email')}: ',
+                            style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            client['email'] ?? 'No Email',
+                            client['email'] ??
+                                translationProvider.translate('no_email'),
                             style: const TextStyle(
                               fontSize: 16.0,
                             ),
@@ -156,15 +164,16 @@ class _ClientsPageState extends State<ClientsPage> {
                       ),
                       Row(
                         children: [
-                          const Text(
-                            'Role: ',
-                            style: TextStyle(
+                          Text(
+                            '${translationProvider.translate('role')}: ',
+                            style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            client['role'] ?? 'No role',
+                            client['role'] ??
+                                translationProvider.translate('no_role'),
                             style: const TextStyle(
                               fontSize: 16.0,
                             ),
@@ -174,15 +183,15 @@ class _ClientsPageState extends State<ClientsPage> {
                       const SizedBox(height: 8.0),
                       Row(
                         children: [
-                          const Text(
-                            'Phone: ',
-                            style: TextStyle(
+                          Text(
+                            '${translationProvider.translate('phone')}: ',
+                            style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            phone != null && phone.isNotEmpty ? phone : 'Admin',
+                            phone != null && phone.isNotEmpty ? phone : '-',
                             style: const TextStyle(
                               fontSize: 16.0,
                             ),
@@ -191,9 +200,9 @@ class _ClientsPageState extends State<ClientsPage> {
                       ),
                       Row(
                         children: [
-                          const Text(
-                            'Feedbacks Given: ',
-                            style: TextStyle(
+                          Text(
+                            '${translationProvider.translate('feedbacks_given')}: ',
+                            style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             ),
@@ -226,9 +235,9 @@ class _ClientsPageState extends State<ClientsPage> {
                             onPressed: () async {
                               await _banClient(client.id);
                             },
-                            child: const Text(
-                              'Ban Client',
-                              style: TextStyle(
+                            child: Text(
+                              translationProvider.translate('ban_client'),
+                              style: const TextStyle(
                                 fontSize:
                                     16.0, // Reduced font size for the button
                                 fontWeight: FontWeight.bold,

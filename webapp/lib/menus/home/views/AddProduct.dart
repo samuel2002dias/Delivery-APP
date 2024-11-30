@@ -12,6 +12,8 @@ import 'package:webapp/menus/create_bloc/create_bloc.dart';
 import 'package:webapp/product/product_repository.dart';
 import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
 import 'package:webapp/widgets/ingredientsAdd.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -41,6 +43,8 @@ class _AddProductState extends State<AddProduct> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return BlocListener<CreateProductBloc, CreateProductState>(
       listener: (context, state) {
         if (state is CreateProductSuccess) {
@@ -70,9 +74,9 @@ class _AddProductState extends State<AddProduct> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Text(
-                      'Add Product',
-                      style: TextStyle(
+                    Text(
+                      translationProvider.translate('add_product'),
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,
                       ),
@@ -121,9 +125,10 @@ class _AddProductState extends State<AddProduct> {
                                   const SizedBox(
                                     height: 10,
                                   ),
-                                  const Text(
-                                    "Add a Picture here...",
-                                    style: TextStyle(color: Colors.grey),
+                                  Text(
+                                    translationProvider
+                                        .translate('add_picture'),
+                                    style: const TextStyle(color: Colors.grey),
                                   )
                                 ],
                               ),
@@ -140,13 +145,15 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: MyTextField(
                                   controller: nameController,
-                                  hintText: 'Name',
+                                  hintText:
+                                      translationProvider.translate('name'),
                                   obscureText: false,
                                   keyboardType: TextInputType.text,
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     if (val!.isEmpty) {
-                                      return 'Please fill in this field';
+                                      return translationProvider
+                                          .translate('fill_field');
                                     }
                                     return null;
                                   },
@@ -160,13 +167,15 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: MyTextField(
                                   controller: descriptionController,
-                                  hintText: 'Description',
+                                  hintText: translationProvider
+                                      .translate('description'),
                                   obscureText: false,
                                   keyboardType: TextInputType.text,
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     if (val!.isEmpty) {
-                                      return 'Please fill in this field';
+                                      return translationProvider
+                                          .translate('fill_field');
                                     }
                                     return null;
                                   },
@@ -180,13 +189,15 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: MyTextField(
                                   controller: priceController,
-                                  hintText: 'Price',
+                                  hintText:
+                                      translationProvider.translate('price'),
                                   obscureText: false,
                                   keyboardType: TextInputType.number,
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     if (val!.isEmpty) {
-                                      return 'Please fill in this field';
+                                      return translationProvider
+                                          .translate('fill_field');
                                     }
                                     return null;
                                   },
@@ -200,7 +211,8 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: IngredientTextField(
                                   controller: ingredient1Controller,
-                                  hintText: 'Ingredient 1',
+                                  hintText: translationProvider
+                                      .translate('ingredient1'),
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     return null;
@@ -211,7 +223,8 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: IngredientTextField(
                                   controller: ingredient2Controller,
-                                  hintText: 'Ingredient 2',
+                                  hintText: translationProvider
+                                      .translate('ingredient2'),
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     return null;
@@ -226,7 +239,8 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: IngredientTextField(
                                   controller: ingredient3Controller,
-                                  hintText: 'Ingredient 3',
+                                  hintText: translationProvider
+                                      .translate('ingredient3'),
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     return null;
@@ -237,7 +251,8 @@ class _AddProductState extends State<AddProduct> {
                               Expanded(
                                 child: IngredientTextField(
                                   controller: ingredient4Controller,
-                                  hintText: 'Ingredient 4',
+                                  hintText: translationProvider
+                                      .translate('ingredient4'),
                                   errorMsg: _errorMsg,
                                   validator: (val) {
                                     return null;
@@ -285,9 +300,9 @@ class _AddProductState extends State<AddProduct> {
                                     vertical: 16.0,
                                     horizontal: 32.0), // Increase padding
                               ),
-                              child: const Text(
-                                'Add Product',
-                                style: TextStyle(
+                              child: Text(
+                                translationProvider.translate('add_product'),
+                                style: const TextStyle(
                                   fontSize:
                                       20.0, // Increase font size for the button
                                   fontWeight: FontWeight.bold,

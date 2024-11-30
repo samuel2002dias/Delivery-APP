@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart'; // Import this package
 import 'package:table_calendar/table_calendar.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
 
 class StatsPage extends StatefulWidget {
   const StatsPage({super.key});
@@ -28,7 +31,13 @@ class _StatsPageState extends State<StatsPage> {
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
+    _initializeDateFormatting();
     _fetchTotalAmount();
+  }
+
+  Future<void> _initializeDateFormatting() async {
+    await initializeDateFormatting('pt_BR', null);
+    await initializeDateFormatting('en_US', null);
   }
 
   Future<void> _fetchTotalAmount() async {
@@ -144,9 +153,11 @@ class _StatsPageState extends State<StatsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stats Page'),
+        title: Text(translationProvider.translate('stats_page')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -155,6 +166,9 @@ class _StatsPageState extends State<StatsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TableCalendar(
+                locale: translationProvider.locale.languageCode == 'pt'
+                    ? 'pt_BR'
+                    : 'en_US',
                 firstDay: DateTime(2000),
                 lastDay: DateTime(2101),
                 focusedDay: _selectedDate ?? DateTime.now(),
@@ -196,28 +210,28 @@ class _StatsPageState extends State<StatsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Total Amount: ${_totalAmount.toStringAsFixed(2)}\€',
+                              '${translationProvider.translate('total_amount')}: ${_totalAmount.toStringAsFixed(2)}\€',
                               style: const TextStyle(
                                   fontSize: 20.0, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Total Requests: $_totalRequests',
+                              '${translationProvider.translate('total_requests')}: $_totalRequests',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Completed Requests: $_completedRequests',
+                              '${translationProvider.translate('completed_requests')}: $_completedRequests',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Canceled Requests: $_canceledRequests',
+                              '${translationProvider.translate('canceled_requests')}: $_canceledRequests',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Most Requested Product: $_mostRequestedProduct',
+                              '${translationProvider.translate('most_requested_product')}: $_mostRequestedProduct',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                           ],
@@ -245,27 +259,27 @@ class _StatsPageState extends State<StatsPage> {
                           children: [
                             const SizedBox(height: 8.0),
                             Text(
-                              'Average Request Amount: ${_averageRequestAmount.toStringAsFixed(2)}\€',
+                              '${translationProvider.translate('average_request_amount')}: ${_averageRequestAmount.toStringAsFixed(2)}\€',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Completed Requests Percentage: ${_completedRequestsPercentage.toStringAsFixed(2)}%',
+                              '${translationProvider.translate('completed_requests_percentage')}: ${_completedRequestsPercentage.toStringAsFixed(2)}%',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Canceled Requests Percentage: ${_canceledRequestsPercentage.toStringAsFixed(2)}%',
+                              '${translationProvider.translate('canceled_requests_percentage')}: ${_canceledRequestsPercentage.toStringAsFixed(2)}%',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Total Products Requested: $_totalProductsRequested',
+                              '${translationProvider.translate('total_products_requested')}: $_totalProductsRequested',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                             const SizedBox(height: 8.0),
                             Text(
-                              'Most Frequent Request Time: $_mostFrequentRequestTime',
+                              '${translationProvider.translate('most_frequent_request_time')}: $_mostFrequentRequestTime',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                           ],

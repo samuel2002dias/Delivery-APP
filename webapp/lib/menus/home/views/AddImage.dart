@@ -9,6 +9,8 @@ import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
 import 'package:webapp/product/src/models/ingredients.dart';
 import 'package:webapp/product/src/models/product.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
 
 class AddImage extends StatefulWidget {
   @override
@@ -86,6 +88,7 @@ class _AddAddImageState extends State<AddImage> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isLargeScreen = screenSize.width > 600;
+    final translationProvider = Provider.of<TranslationProvider>(context);
 
     return BlocListener<UploadPictureBloc, UploadPictureState>(
       listener: (context, state) {
@@ -116,9 +119,9 @@ class _AddAddImageState extends State<AddImage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Add the Image that you want to upload',
-                          style: TextStyle(
+                        Text(
+                          translationProvider.translate('add_image'),
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),
@@ -168,9 +171,11 @@ class _AddAddImageState extends State<AddImage> {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      const Text(
-                                        "Add a Picture here...",
-                                        style: TextStyle(color: Colors.grey),
+                                      Text(
+                                        translationProvider
+                                            .translate('add_picture'),
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                       )
                                     ],
                                   ),
@@ -180,9 +185,9 @@ class _AddAddImageState extends State<AddImage> {
                           height: 20,
                         ),
                         if (isUploadSuccess) ...[
-                          const Text(
-                            "Upload Complete, you will be redirected to the home page",
-                            style: TextStyle(
+                          Text(
+                            translationProvider.translate('upload_complete'),
+                            style: const TextStyle(
                               fontSize: 16.0,
                               color: Colors.green,
                             ),
@@ -196,16 +201,17 @@ class _AddAddImageState extends State<AddImage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Images Available',
-                          style: TextStyle(
+                        Text(
+                          translationProvider.translate('images_available'),
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                           ),
                         ),
                         const SizedBox(height: 10),
                         imageNames.isEmpty
-                            ? const Text('No images found.')
+                            ? Text(translationProvider
+                                .translate('no_images_found'))
                             : ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: imageNames.length,

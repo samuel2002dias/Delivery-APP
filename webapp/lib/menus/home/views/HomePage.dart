@@ -5,6 +5,8 @@ import 'package:webapp/menus/home/views/ClientsPage.dart';
 import 'package:webapp/menus/home/views/RequestPage.dart';
 import 'package:webapp/menus/home/views/StatsPage.dart';
 import 'ProductPage.dart'; // Import the ProductPage
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart'; // Import the TranslationProvider
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,22 +25,24 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translator = Provider.of<TranslationProvider>(context);
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         body: Column(
           children: [
-            const TabBar(
-              indicatorColor: Color.fromRGBO(252, 185, 19, 1),
+            TabBar(
+              indicatorColor: const Color.fromRGBO(252, 185, 19, 1),
               labelColor:
                   Colors.black, // Set the selected tab text color to black
               unselectedLabelColor:
                   Colors.grey, // Optionally set the unselected tab text color
               tabs: [
-                Tab(text: 'Products'),
-                Tab(text: 'Requests'),
-                Tab(text: 'Clients'),
-                Tab(text: 'Stats'),
+                Tab(text: translator.translate('products')),
+                Tab(text: translator.translate('requests')),
+                Tab(text: translator.translate('list_of_clients')),
+                Tab(text: translator.translate('stats_page')),
               ],
             ),
             Expanded(
@@ -48,7 +52,9 @@ class HomePage extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                        child: Text(
+                            '${translator.translate('error')}: ${snapshot.error}'));
                   } else if (snapshot.hasData) {
                     if (snapshot.data == 'Admin') {
                       return TabBarView(
@@ -60,26 +66,39 @@ class HomePage extends StatelessWidget {
                         ],
                       );
                     } else if (snapshot.data == 'Delivery Guy') {
-                      return const TabBarView(
+                      return TabBarView(
                         children: [
-                          Center(child: Text('Access Denied')),
-                          RequestPage(), // Delivery Guy has access only to Requests
-                          Center(child: Text('Access Denied')),
-                          StatsPage(),
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
+                          const RequestPage(), // Delivery Guy has access only to Requests
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
+                          const StatsPage(),
                         ],
                       );
                     } else {
-                      return const TabBarView(
+                      return TabBarView(
                         children: [
-                          Center(child: Text('Access Denied')),
-                          Center(child: Text('Access Denied')),
-                          Center(child: Text('Access Denied')),
-                          Center(child: Text('Access Denied')),
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
+                          Center(
+                              child:
+                                  Text(translator.translate('access_denied'))),
                         ],
                       );
                     }
                   } else {
-                    return const Center(child: Text('No role found'));
+                    return Center(
+                        child: Text(translator.translate('no_role_found')));
                   }
                 },
               ),

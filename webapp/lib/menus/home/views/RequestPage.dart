@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:webapp/translation_provider.dart';
 
 class RequestPage extends StatelessWidget {
   const RequestPage({super.key});
@@ -22,6 +24,38 @@ class RequestPage extends StatelessWidget {
       default:
         return Colors.grey; // Default color if status is unknown
     }
+  }
+
+  String _translateStatus(String status, Locale locale) {
+    if (locale.languageCode == 'pt') {
+      switch (status) {
+        case 'In Progress':
+          return 'Em Progresso';
+        case 'Delivery':
+          return 'Entrega';
+        case 'Completed':
+          return 'Concluído';
+        case 'Canceled':
+          return 'Cancelado';
+        default:
+          return status;
+      }
+    }
+    return status;
+  }
+
+  String _translatePayment(String payment, Locale locale) {
+    if (locale.languageCode == 'pt') {
+      switch (payment) {
+        case 'Credit Card':
+          return 'Cartão de Crédito';
+        case 'Cash':
+          return 'Dinheiro';
+        default:
+          return payment;
+      }
+    }
+    return payment;
   }
 
   void _upgradeStatus(DocumentSnapshot request) {
@@ -73,9 +107,12 @@ class RequestPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final translationProvider = Provider.of<TranslationProvider>(context);
+    final locale = translationProvider.locale;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Requests'),
+        title: Text(translationProvider.translate('requests')),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('requests').snapshots(),
@@ -84,7 +121,9 @@ class RequestPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No requests available'));
+            return Center(
+                child: Text(
+                    translationProvider.translate('no_requests_available')));
           }
           final requests = snapshot.data!.docs;
 
@@ -119,8 +158,9 @@ class RequestPage extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (!userSnapshot.hasData) {
-                    return const Center(
-                        child: Text('User details not available'));
+                    return Center(
+                        child: Text(translationProvider
+                            .translate('user_details_not_available')));
                   }
                   final user = userSnapshot.data!;
                   final userName = user['name'];
@@ -147,7 +187,7 @@ class RequestPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Request: ${productNames.join(', ')}',
+                              '${translationProvider.translate('request')}: ${productNames.join(', ')}',
                               style: const TextStyle(
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.bold,
@@ -157,9 +197,10 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'User: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('user')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -173,9 +214,10 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'Phone: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('phone')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -189,9 +231,10 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'Timestamp: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('timestamp')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -204,9 +247,10 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'Address: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('address')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -219,9 +263,10 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'Price: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('price')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -234,14 +279,16 @@ class RequestPage extends StatelessWidget {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  const TextSpan(
-                                    text: 'Payment: ',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text:
+                                        '${translationProvider.translate('payment')}: ',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: request['payment'],
+                                    text: _translatePayment(
+                                        request['payment'], locale),
                                   ),
                                 ],
                               ),
@@ -261,7 +308,7 @@ class RequestPage extends StatelessWidget {
                                         16.0, // Reduced horizontal padding
                                   ),
                                   child: Text(
-                                    '$status',
+                                    _translateStatus(status, locale),
                                     style: const TextStyle(
                                       fontSize: 16.0, // Reduced font size
                                       fontWeight: FontWeight.bold,
@@ -287,9 +334,10 @@ class RequestPage extends StatelessWidget {
                                               status == 'Canceled'
                                           ? null
                                           : () => _upgradeStatus(request),
-                                      child: const Text(
-                                        'Upgrade',
-                                        style: TextStyle(
+                                      child: Text(
+                                        translationProvider
+                                            .translate('upgrade'),
+                                        style: const TextStyle(
                                           fontSize:
                                               12.0, // Reduced font size for the button
                                           fontWeight: FontWeight.bold,
@@ -315,9 +363,9 @@ class RequestPage extends StatelessWidget {
                                               status == 'Canceled'
                                           ? null
                                           : () => _cancelRequest(request),
-                                      child: const Text(
-                                        'Cancel',
-                                        style: TextStyle(
+                                      child: Text(
+                                        translationProvider.translate('cancel'),
+                                        style: const TextStyle(
                                           fontSize:
                                               16.0, // Reduced font size for the button
                                           fontWeight: FontWeight.bold,
