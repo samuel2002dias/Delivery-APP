@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:delivery/product/src/firebase_product.dart';
 import 'package:provider/provider.dart';
 import 'package:delivery/translation_provider.dart';
+import 'package:delivery/translation_service.dart'; // Import the TranslationService
 
 class RequestList extends StatefulWidget {
   const RequestList({Key? key}) : super(key: key);
@@ -180,7 +181,27 @@ class _RequestListState extends State<RequestList> {
                                         return const SizedBox.shrink();
                                       }
                                       final productData = snapshot.data!;
-                                      return Text(productData['description']);
+                                      final description =
+                                          productData['description'];
+                                      return FutureBuilder<String>(
+                                        future:
+                                            TranslationService.translateText(
+                                                description),
+                                        builder:
+                                            (context, translationSnapshot) {
+                                          if (translationSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const CircularProgressIndicator();
+                                          }
+                                          if (translationSnapshot.hasError ||
+                                              !translationSnapshot.hasData) {
+                                            return Text(description);
+                                          }
+                                          return Text(
+                                              translationSnapshot.data!);
+                                        },
+                                      );
                                     },
                                   ),
                                 const SizedBox(height: 8),
