@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class TranslationService {
   static const String _subscriptionKey =
-      '7LPqL35Ea73Ac1Ihy1MmNhrHC6I6rZlQ762BkxKos4vMRwPQXGSkJQQJ99ALAC5RqLJXJ3w3AAAbACOG2DRV';
+      'CT3JSIJ45spE4BGdXPjaZs99r9nDrCr4b9nkSLRTukt5tfg1JyhdJQQJ99ALAC5RqLJXJ3w3AAAbACOGunJW';
   static const String _endpoint =
       'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0';
 
