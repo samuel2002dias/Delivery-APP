@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_cast
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -184,9 +182,12 @@ class _RequestListState extends State<RequestList> {
                                       final description =
                                           productData['description'];
                                       return FutureBuilder<String>(
-                                        future:
-                                            TranslationService.translateText(
-                                                description),
+                                        future: translationProvider
+                                                    .locale.languageCode ==
+                                                'en'
+                                            ? TranslationService.translateText(
+                                                description)
+                                            : Future.value(description),
                                         builder:
                                             (context, translationSnapshot) {
                                           if (translationSnapshot

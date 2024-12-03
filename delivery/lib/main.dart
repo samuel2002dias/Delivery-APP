@@ -16,7 +16,7 @@ void main() async {
 
   // Initialize the TranslationProvider and load the default language
   final translationProvider = TranslationProvider();
-  await translationProvider.load(Locale('en'));
+  await translationProvider.load(Locale('pt'));
 
   runApp(
     ChangeNotifierProvider(
