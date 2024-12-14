@@ -14,14 +14,14 @@ class PaymentService {
       ),
       paypalRequest: BraintreePayPalRequest(
         amount: totalPrice.toStringAsFixed(2),
-        displayName: 'Your Company',
+        displayName: 'APP',
       ),
       cardEnabled: true,
     );
 
     BraintreeDropInResult? result = await BraintreeDropIn.start(request);
     if (result != null) {
-      print('Payment method nonce: ${result.paymentMethodNonce.nonce}');
+      print('Payment method result: ${result.paymentMethodNonce.nonce}');
       // Return nonce to be used for processing
       return result.paymentMethodNonce.nonce;
     } else {
