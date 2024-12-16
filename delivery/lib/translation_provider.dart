@@ -25,4 +25,8 @@ class TranslationProvider with ChangeNotifier {
   String translate(String key) {
     return _localizedStrings[key] ?? key;
   }
+
+  String get currencySymbol {
+    return _locale.languageCode == 'en' ? '\$' : '€';
+  }
 }

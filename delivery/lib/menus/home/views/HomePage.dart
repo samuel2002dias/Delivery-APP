@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_types_as_parameter_names, use_build_context_synchronously, file_names, library_private_types_in_public_api
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery/menus/autenticacao/bloc/LogInBloc.dart';
 import 'package:delivery/menus/home/views/CartPage.dart';
@@ -380,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Row(
                                   children: [
                                     Text(
-                                      '${productData['price'] ?? '0.00'}\€',
+                                      '${productData['price'] ?? '0.00'}${translationProvider.currencySymbol}',
                                       style: const TextStyle(
                                         fontSize:
                                             18.0, // Font size for the price

@@ -380,7 +380,7 @@ class _BuyNowPageState extends State<BuyNowPage> {
                           ),
                         ),
                         child: Text(
-                          "${translationProvider.translate('pay')} $totalPrice€",
+                          "${translationProvider.translate('pay')} $totalPrice${translationProvider.currencySymbol}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,

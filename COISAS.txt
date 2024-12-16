@@ -1,8 +1,0 @@
-Ecra principal (route \)
-	- Produtos (route \products)
-		- Edit produto x (route \productsX)
-		- Add produto (route \addproduct)
-	- Requests (route \requests)
-		- Request x (route \requestX)
-	- Clientes (route \clientes)
-		- Client x (route \ClientX)

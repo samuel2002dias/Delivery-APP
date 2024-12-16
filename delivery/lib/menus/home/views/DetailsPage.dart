@@ -136,7 +136,7 @@ class DetailsPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    "${productData['price'] ?? '0.00'}\€",
+                                    "${productData['price'] ?? '0.00'}${translationProvider.currencySymbol}",
                                     style: const TextStyle(
                                       color: Color.fromRGBO(252, 185, 19, 1),
                                       fontSize: 20,

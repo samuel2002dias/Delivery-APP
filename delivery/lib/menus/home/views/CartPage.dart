@@ -212,7 +212,7 @@ class _CartPageState extends State<CartPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '${productDetails['price'] ?? '0.00'}\€',
+                                    '${productDetails['price'] ?? '0.00'}${translationProvider.currencySymbol}',
                                     style: const TextStyle(
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
