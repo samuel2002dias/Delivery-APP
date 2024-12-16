@@ -79,7 +79,7 @@ class _BasePageState extends State<BasePage> {
                   context.go('/home'); // Navigate to /home
                 },
                 child: Image.asset(
-                  'images/logo.png',
+                  'images/Logo.png',
                   height: 80, // Adjust the height as needed
                 ),
               ),
