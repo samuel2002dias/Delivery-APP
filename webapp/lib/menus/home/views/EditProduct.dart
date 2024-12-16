@@ -373,7 +373,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       child: ElevatedButton(
                         onPressed: () async {
                           await _updateProduct();
-                          context.go('/');
+                          context.go('/home');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(

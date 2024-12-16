@@ -50,9 +50,9 @@ class _AddProductState extends State<AddProduct> {
         if (state is CreateProductSuccess) {
           setState(() {
             creationRequired = false;
-            context.go('/');
+            context.go('/home');
           });
-          context.go('/');
+          context.go('/home');
         } else if (state is CreateProductLoading) {
           setState(() {
             creationRequired = true;

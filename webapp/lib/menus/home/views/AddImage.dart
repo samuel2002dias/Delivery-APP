@@ -103,7 +103,7 @@ class _AddAddImageState extends State<AddImage> {
           // Redirect to home page after 3 seconds
           Future.delayed(const Duration(seconds: 3), () {
             if (context.mounted) {
-              context.go('/');
+              context.go('/home');
             }
           });
         }

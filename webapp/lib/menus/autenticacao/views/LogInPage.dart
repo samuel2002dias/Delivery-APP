@@ -29,7 +29,7 @@ class _SignInScreenState extends State<SignInScreen> {
           setState(() {
             signInRequired = false;
           });
-          context.go('/');
+          context.go('/home');
           // Navigate to the admin dashboard or home page
         } else if (state is SignInProcess) {
           setState(() {

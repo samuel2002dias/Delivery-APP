@@ -15,7 +15,7 @@ import 'package:webapp/menus/splash/views/SplashPage.dart';
 import 'package:webapp/product/src/firebase_product.dart';
 import 'package:webapp/menus/upload_bloc/upload_bloc.dart';
 import 'package:webapp/menus/home/views/UserStatus.dart';
-import 'package:webapp/menus/home/views/AddImage.dart'; // Import FeedbackGiven page
+import 'package:webapp/menus/home/views/AddImage.dart';
 
 final _navKey = GlobalKey<NavigatorState>();
 final _shellNavKey = GlobalKey<NavigatorState>();
@@ -25,89 +25,98 @@ GoRouter router(AuthenticationBloc authBloc) {
     navigatorKey: _navKey,
     initialLocation: '/',
     redirect: (context, state) {
-      if (authBloc.state.status == AuthenticationStatus.unknown) {
-        return '/';
-      }
+      final loggedIn =
+          authBloc.state.status == AuthenticationStatus.authenticated;
+      final loggingIn = state.matchedLocation == '/login';
+
+      if (!loggedIn && !loggingIn) return '/login';
+      if (loggedIn && loggingIn) return '/home';
+      return null;
     },
     routes: [
       ShellRoute(
-          navigatorKey: _shellNavKey,
-          builder: (context, state, child) {
-            if (state.fullPath == '/login' || state.fullPath == '/') {
-              return child;
-            } else {
-              return BlocProvider<SignInBloc>(
-                  create: (context) => SignInBloc(
-                      context.read<AuthenticationBloc>().userRepository),
-                  child: BasePage(child));
-            }
-          },
-          routes: [
-            GoRoute(
-                path: '/',
-                builder: (context, state) =>
-                    BlocProvider<AuthenticationBloc>.value(
-                      value: BlocProvider.of<AuthenticationBloc>(context),
-                      child: const SplashPage(),
-                    )),
-            GoRoute(
-                path: '/login',
-                builder: (context, state) =>
-                    BlocProvider<AuthenticationBloc>.value(
-                      value: BlocProvider.of<AuthenticationBloc>(context),
-                      child: BlocProvider<SignInBloc>(
-                        create: (context) => SignInBloc(
-                            context.read<AuthenticationBloc>().userRepository),
-                        child: const SignInScreen(),
-                      ),
-                    )),
-            GoRoute(
-                path: '/home',
-                builder: (context, state) =>
-                    BlocProvider<AuthenticationBloc>.value(
-                      value: BlocProvider.of<AuthenticationBloc>(context),
-                      child: HomePage(),
-                    )),
-            GoRoute(
-              path: '/add-product',
-              builder: (context, state) => MultiBlocProvider(
-                providers: [
-                  BlocProvider<UploadPictureBloc>(
-                    create: (context) => UploadPictureBloc(FirebaseProduct()),
-                  ),
-                  BlocProvider<CreateProductBloc>(
-                    create: (context) => CreateProductBloc(FirebaseProduct()),
-                  ),
-                ],
-                child: const AddProduct(),
+        navigatorKey: _shellNavKey,
+        builder: (context, state, child) {
+          if (state.fullPath == '/login' || state.fullPath == '/') {
+            return child;
+          } else {
+            return BlocProvider<SignInBloc>(
+              create: (context) => SignInBloc(
+                context.read<AuthenticationBloc>().userRepository,
+              ),
+              child: BasePage(child),
+            );
+          }
+        },
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => BlocProvider<AuthenticationBloc>.value(
+              value: BlocProvider.of<AuthenticationBloc>(context),
+              child: const SplashPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/login',
+            builder: (context, state) => BlocProvider<AuthenticationBloc>.value(
+              value: BlocProvider.of<AuthenticationBloc>(context),
+              child: BlocProvider<SignInBloc>(
+                create: (context) => SignInBloc(
+                  context.read<AuthenticationBloc>().userRepository,
+                ),
+                child: SignInScreen(),
               ),
             ),
-            GoRoute(
-              path: '/edit-product/:productID',
-              builder: (context, state) {
-                final productID = state.pathParameters['productID']!;
-                return BlocProvider(
+          ),
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => BlocProvider<AuthenticationBloc>.value(
+              value: BlocProvider.of<AuthenticationBloc>(context),
+              child: const HomePage(),
+            ),
+          ),
+          GoRoute(
+            path: '/add-product',
+            builder: (context, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider<UploadPictureBloc>(
                   create: (context) => UploadPictureBloc(FirebaseProduct()),
-                  child: EditProductPage(productID: productID),
-                );
-              },
+                ),
+                BlocProvider<CreateProductBloc>(
+                  create: (context) => CreateProductBloc(FirebaseProduct()),
+                ),
+              ],
+              child: const AddProduct(),
             ),
-            GoRoute(
-              path: '/user-status/:userId',
-              builder: (context, state) {
-                final userID = state.pathParameters['userId']!;
-                return FeedbacksGiven(userID: userID);
-              },
-            ),
-            GoRoute(
-              path: '/image-details',
-              builder: (context, state) {
-                return BlocProvider<UploadPictureBloc>(
-                    create: (context) => UploadPictureBloc(FirebaseProduct()),
-                    child: AddImage());
-              },
-            ),
-          ]),
+          ),
+          GoRoute(
+            path: '/edit-product/:productID',
+            builder: (context, state) {
+              final productID = state.pathParameters['productID']!;
+              return BlocProvider(
+                create: (context) => UploadPictureBloc(FirebaseProduct()),
+                child: EditProductPage(productID: productID),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/user-status/:userId',
+            builder: (context, state) {
+              final userID = state.pathParameters['userId']!;
+              return FeedbacksGiven(userID: userID);
+            },
+          ),
+          GoRoute(
+            path: '/image-details',
+            builder: (context, state) {
+              return BlocProvider<UploadPictureBloc>(
+                create: (context) => UploadPictureBloc(FirebaseProduct()),
+                child: AddImage(),
+              );
+            },
+          ),
+        ],
+      ),
     ],
   );
 }
